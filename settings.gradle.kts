@@ -23,6 +23,14 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "COFFEE SHOP APP"
-include(":app")
+include(":coffee-shop-app")
 include(":core:network")
 include(":core:design-system")
+include(":feature:auth:api")
+include(":feature:auth:internal")
+include(":core:common")
+include(":core:navigation")
+include(":core:utils")
+include(":core:deps")
+include(":core:build-config:api")
+include(":core:build-config:internal")

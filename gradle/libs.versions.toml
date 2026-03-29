@@ -19,6 +19,7 @@ room = "2.8.4"
 lifecycleVersion = "2.10.0"
 dagger = "2.59.2"
 ksp = "2.3.4"
+jetbrainsKotlinJvm = "2.3.20"
 
 
 [libraries]
@@ -58,6 +59,13 @@ lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecy
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 
+[bundles]
+lifecycle-viewmodel = [
+    "lifecycle-viewmodel-compose",
+#    "lifecycle-viewmodel-savedstate",
+    "lifecycle-viewmodel-navigation3"
+]
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -65,3 +73,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }

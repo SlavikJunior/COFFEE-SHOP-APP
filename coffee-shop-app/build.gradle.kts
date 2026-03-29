@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -41,6 +43,15 @@ android {
 }
 
 dependencies {
+    // deps for app component
+    implementation(project(path = ":core:deps"))
+
+    // feature deps
+    implementation(project(path = ":feature:auth:api"))
+
+    // other deps
+    implementation(libs.dagger.core)
+    ksp(libs.dagger.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
