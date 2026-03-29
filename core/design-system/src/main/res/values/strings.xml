@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Логотип / бренд -->
+    <string name="logo_text">1804</string>
+
+    <!-- Content descriptions — топ-бар -->
+    <string name="cd_profile">Профиль</string>
+    <string name="cd_close">Закрыть</string>
+
+    <!-- Content descriptions — корзина (FAB) -->
+    <string name="cd_cart">Корзина</string>
+
+    <!-- Content descriptions — счётчик -->
+    <string name="cd_stepper_decrement">Уменьшить количество</string>
+    <string name="cd_stepper_increment">Увеличить количество</string>
+
+    <!-- Content descriptions — избранное -->
+    <string name="cd_favourite_add">Добавить в избранное</string>
+    <string name="cd_favourite_remove">Убрать из избранного</string>
+</resources>
