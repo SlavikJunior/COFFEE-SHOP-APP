@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system
+package com.coffeeshop.designsystem
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

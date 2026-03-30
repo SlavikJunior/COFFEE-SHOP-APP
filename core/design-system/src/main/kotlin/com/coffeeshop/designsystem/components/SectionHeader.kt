@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -11,8 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
+import androidx.compose.ui.tooling.preview.Preview
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.Secondary
 
 /**
  * Заголовок секции: текст all-caps серым цветом + горизонтальный разделитель.
@@ -36,6 +37,10 @@ fun SectionHeader(
         HorizontalDivider(color = Secondary.copy(alpha = 0.2f))
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun SectionHeaderPreview() = SectionHeader(title = "История заказов")
 
 /**
  * Кликабельная строка-ссылка с разделителем снизу.
@@ -63,3 +68,10 @@ fun ProfileLinkRow(
         HorizontalDivider(color = Secondary.copy(alpha = 0.2f))
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun ProfileLinkRowPreview() = ProfileLinkRow(
+    label = "История заказов",
+    onClick = {},
+)

@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
+import androidx.compose.ui.tooling.preview.Preview
+import com.coffeeshop.designsystem.Secondary
 
 /**
  * Строка с переключателем: метка слева (all-caps), зелёный Switch справа.
@@ -61,3 +61,11 @@ fun CoffeeToggleRow(
         HorizontalDivider(color = Secondary.copy(alpha = 0.2f))
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun CoffeeToggleRowPreview() = CoffeeToggleRow(
+    label = "Уведомления",
+    checked = true,
+    onCheckedChange = {},
+)

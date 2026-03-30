@@ -1,13 +1,11 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,20 +17,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.coffeeshop.design_system.Beige
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
-import com.coffeeshop.design_system.White
+import com.coffeeshop.designsystem.Beige
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.White
 
 // TODO: перенести в ProductDetailViewModel (feature:catalog) когда будет создан фича-модуль.
 //  Здесь только временный контракт для composable — composable не должен знать о бизнес-слое.
@@ -165,4 +163,37 @@ fun ProductDetailBottomSheet(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun ProductDetailBottomSheetPreview() {
+    val previewState = ProductDetailState(
+        name = "Капучино",
+        imageUrl = null,
+        volumes = listOf("250 мл", "350 мл", "450 мл"),
+        selectedVolume = "350 мл",
+        modifierGroups = listOf(
+            ModifierGroup(
+                title = "Молоко",
+                options = listOf("Обычное", "Овсяное", "Кокосовое"),
+                selectedOption = "Обычное",
+            ),
+        ),
+        quantity = 1,
+        comment = "",
+        totalPrice = "280 ₽",
+    )
+    ProductDetailBottomSheet(
+        state = previewState,
+        sheetState = rememberModalBottomSheetState(),
+        onDismiss = {},
+        onVolumeSelected = {},
+        onModifierSelected = { _, _ -> },
+        onQuantityDecrement = {},
+        onQuantityIncrement = {},
+        onCommentChange = {},
+        onAddToCart = {},
+    )
 }

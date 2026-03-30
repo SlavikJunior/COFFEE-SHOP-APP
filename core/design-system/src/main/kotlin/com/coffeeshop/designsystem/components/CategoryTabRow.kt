@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,9 +16,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
-import com.coffeeshop.design_system.White
+import androidx.compose.ui.tooling.preview.Preview
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.Secondary
+import com.coffeeshop.designsystem.White
 
 /**
  * Горизонтальный скролл-ряд категорий с подчёркиванием активного таба.
@@ -47,6 +48,14 @@ fun CategoryTabRow(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun CategoryTabRowPreview() = CategoryTabRow(
+    tabs = listOf("Фирменные", "Кофе", "Не кофе", "Матча", "Выпечка"),
+    selectedIndex = 1,
+    onTabSelected = {},
+)
 
 @Composable
 private fun CategoryTab(

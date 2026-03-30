@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,10 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.coffeeshop.design_system.Beige
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.R
-import com.coffeeshop.design_system.Secondary
+import androidx.compose.ui.tooling.preview.Preview
+import com.coffeeshop.designsystem.Beige
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.R
+import com.coffeeshop.designsystem.Secondary
 
 /**
  * Кнопка «в избранное» — маленькое сердце в бежевом круге.
@@ -49,3 +50,17 @@ fun FavouriteButton(
         )
     }
 }
+
+@Preview
+@Composable
+private fun FavouriteButtonPreview() = FavouriteButton(
+    isFavourite = false,
+    onToggle = {},
+)
+
+@Preview
+@Composable
+private fun FavouriteButtonActivePreview() = FavouriteButton(
+    isFavourite = true,
+    onToggle = {},
+)

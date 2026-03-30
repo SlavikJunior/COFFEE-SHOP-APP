@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,10 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.coffeeshop.design_system.Beige
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
-import com.coffeeshop.design_system.White
+import com.coffeeshop.designsystem.Beige
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.Secondary
+import com.coffeeshop.designsystem.White
 
 /**
  * Горизонтальная карточка позиции в корзине и в истории заказов:

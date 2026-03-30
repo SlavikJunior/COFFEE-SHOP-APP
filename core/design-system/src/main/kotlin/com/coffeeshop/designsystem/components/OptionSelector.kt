@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,10 +21,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.design_system.Beige
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
-import com.coffeeshop.design_system.White
+import com.coffeeshop.designsystem.Beige
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.Secondary
+import com.coffeeshop.designsystem.White
 
 /**
  * Группа чипов-опций с заголовком: выбор объёма (250 мл / 350 мл),

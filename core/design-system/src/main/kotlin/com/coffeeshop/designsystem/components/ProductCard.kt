@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,10 +18,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import coil3.compose.AsyncImage
-import com.coffeeshop.design_system.Beige
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
+import com.coffeeshop.designsystem.Beige
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.Secondary
 
 /**
  * Карточка товара в сетке каталога и на экране избранного.
@@ -90,3 +91,14 @@ fun ProductCard(
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun ProductCardPreview() = ProductCard(
+    name = "Капучино",
+    price = "280 ₽",
+    imageUrl = null,
+    onClick = {},
+    isFavourite = false,
+    onFavouriteToggle = {},
+)

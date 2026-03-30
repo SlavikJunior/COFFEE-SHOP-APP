@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.height
@@ -13,8 +13,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.White
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.White
 
 /**
  * Кнопка с обводкой (белый фон, тёмная рамка).

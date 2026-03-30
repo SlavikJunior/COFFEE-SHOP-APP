@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.coffeeshop.design_system"
+    namespace = "com.coffeeshop.designsystem"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -47,8 +47,11 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
+
     testImplementation(libs.junit)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

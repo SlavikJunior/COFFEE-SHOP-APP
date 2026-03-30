@@ -1,4 +1,4 @@
-package com.coffeeshop.design_system.components
+package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,10 +16,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.design_system.DarkBrown
-import com.coffeeshop.design_system.Secondary
+import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.Secondary
 
 /**
  * Строка-поле в стиле профиля: метка слева (all-caps), значение справа.
@@ -65,6 +65,14 @@ fun CoffeeProfileField(
         HorizontalDivider(color = Secondary.copy(alpha = 0.2f))
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun CoffeeProfileFieldPreview() = CoffeeProfileField(
+    label = "Имя",
+    value = "Вячеслав",
+    onValueChange = {},
+)
 
 /**
  * Инпут формы: маленькая метка сверху, поле ввода с нижней линией-разделителем.
@@ -120,3 +128,13 @@ fun CoffeeInputField(
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun CoffeeInputFieldPreview() = CoffeeInputField(
+    label = "Номер телефона",
+    value = "",
+    onValueChange = {},
+    placeholder = "+7 (999) 000-00-00",
+    keyboardType = KeyboardType.Phone,
+)
