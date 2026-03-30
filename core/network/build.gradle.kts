@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.implementation
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
@@ -38,17 +36,20 @@ android {
 }
 
 dependencies {
-    implementation(rootProject.files("libs/api-contracts.jar"))
+    api(rootProject.files("libs/api-contracts.jar"))
 
+    api(libs.kotlinx.serialization.json)
+    api(libs.retrofit.kotlinx.serialization.converter)
+    api(libs.retrofit)
+    api(libs.okhttp.logging)
+    api(libs.kotlin.reflect)
+
+    implementation(libs.dagger.core)
+    ksp(libs.dagger.compiler)
     implementation(libs.room)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     implementation(libs.coroutines)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.retrofit.kotlinx.serialization.converter)
-    implementation(libs.retrofit)
-    implementation(libs.okhttp.logging)
-    implementation(libs.kotlin.reflect)
     implementation(libs.androidx.core.ktx)
 
     testImplementation(libs.junit)
