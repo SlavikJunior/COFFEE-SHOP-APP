@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -48,6 +49,11 @@ dependencies {
 
     // feature deps
     implementation(project(path = ":feature:auth:api"))
+    implementation(project(path = ":feature:auth:internal"))
+
+    // nav deps
+    implementation(project(path = ":core:navigation"))
+    implementation(libs.bundles.nav3)
 
     // other deps
     implementation(libs.dagger.core)
