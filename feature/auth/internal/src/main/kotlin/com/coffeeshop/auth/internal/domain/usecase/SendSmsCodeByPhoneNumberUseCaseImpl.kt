@@ -2,8 +2,8 @@ package com.coffeeshop.auth.internal.domain.usecase
 
 import com.coffeeshop.auth.api.domain.repository.AuthRepository
 import com.coffeeshop.auth.api.domain.usecase.SendSmsCodeByPhoneNumberUseCase
-import com.coffeeshop.common.model.AuthStatus
-import com.coffeeshop.common.model.PhoneNumberModel
+import com.coffeeshop.common.model.auth.AuthStatus
+import com.coffeeshop.common.model.auth.PhoneNumberModel
 import com.coffeeshop.common.result.Result
 import javax.inject.Inject
 import kotlin.time.Clock

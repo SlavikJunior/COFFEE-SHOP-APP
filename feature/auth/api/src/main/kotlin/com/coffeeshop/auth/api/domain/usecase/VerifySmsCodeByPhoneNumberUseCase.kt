@@ -1,8 +1,8 @@
 package com.coffeeshop.auth.api.domain.usecase
 
 import com.coffeeshop.common.result.Result
-import com.coffeeshop.common.model.PhoneNumberModel
-import com.coffeeshop.common.model.SmsCodeModel
+import com.coffeeshop.common.model.auth.PhoneNumberModel
+import com.coffeeshop.common.model.auth.SmsCodeModel
 
 interface VerifySmsCodeByPhoneNumberUseCase {
 

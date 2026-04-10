@@ -3,8 +3,8 @@ package com.coffeeshop.auth.internal.domain.usecase
 import com.coffeeshop.auth.api.domain.repository.AuthRepository
 import com.coffeeshop.auth.api.domain.usecase.VerifySmsCodeByPhoneNumberUseCase
 import com.coffeeshop.common.result.Result
-import com.coffeeshop.common.model.PhoneNumberModel
-import com.coffeeshop.common.model.SmsCodeModel
+import com.coffeeshop.common.model.auth.PhoneNumberModel
+import com.coffeeshop.common.model.auth.SmsCodeModel
 import javax.inject.Inject
 
 class VerifySmsCodeByPhoneNumberUseCaseImpl

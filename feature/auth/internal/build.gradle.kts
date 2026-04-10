@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -46,6 +47,7 @@ dependencies {
     implementation(project(":core:build-config:api"))
     implementation(project(":core:design-system"))
     implementation(project(":feature:auth:api"))
+    implementation(project(":feature:products:api"))
 
     // compose
     implementation(platform(libs.androidx.compose.bom))
@@ -58,6 +60,7 @@ dependencies {
     // navigation
     implementation(libs.navigation3.runtime)
     implementation(libs.navigation3.ui)
+    implementation(libs.navigation3.router)
 
     // bundles
     implementation(libs.bundles.lifecycle.viewmodel)
@@ -74,6 +77,7 @@ dependencies {
     // dagger
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)
+    implementation(project(path = ":core:di"))
 
     // test
     testImplementation(libs.junit)

@@ -1,8 +1,15 @@
 package com.coffeeshop.auth.api.presentation.navigation
 
-import androidx.navigation3.runtime.NavKey
+import com.coffeshop.navigation.Route
+import kotlinx.serialization.Serializable
 
-sealed interface Route: NavKey {
-    data object RegisterScreen : Route
-    data object LoginScreen : Route
-}
+@Serializable
+data class RegisterRoute(
+    val phone: String = "",
+    val name: String = ""
+) : Route
+
+@Serializable
+data class LoginRoute(
+    val phone: String = ""
+) : Route

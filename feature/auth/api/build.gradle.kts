@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -38,6 +39,7 @@ dependencies {
     api(project(path = ":core:navigation"))
 
     implementation(libs.navigation3.runtime)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

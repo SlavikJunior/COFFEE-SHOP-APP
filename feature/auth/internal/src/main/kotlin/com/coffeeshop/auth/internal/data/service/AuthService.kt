@@ -15,10 +15,10 @@ interface AuthService {
     ): TokenPair
 
     @POST("send-sms")
-    fun sendSms(@Body request: SendSmsRequest)
+    suspend fun sendSms(@Body request: SendSmsRequest)
 
     @POST("verify")
-    fun verify(
+    suspend fun verify(
         @Body request: VerifyOtpRequest
     ): TokenPair
 
