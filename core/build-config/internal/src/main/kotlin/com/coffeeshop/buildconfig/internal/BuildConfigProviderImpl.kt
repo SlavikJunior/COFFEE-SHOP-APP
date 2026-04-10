@@ -4,7 +4,10 @@ import com.coffeeshop.buildconfig.api.BuildConfigProvider
 import java.util.concurrent.TimeUnit
 
 class BuildConfigProviderImpl : BuildConfigProvider {
+
     override fun getCoffeeShopBaseUrl() = BuildConfig.COFFEE_SHOP_BASE_URL
+
+    override fun getCoffeeShopTestBaseUrl() = BuildConfig.COFFEE_SHOP_TEST_BASE_URL
 
     override fun getCallTimeOut(): Pair<Long, TimeUnit> {
         val sec = BuildConfig.CALL_TIMEOUT_SEC.toLong()
@@ -20,4 +23,6 @@ class BuildConfigProviderImpl : BuildConfigProvider {
         val sec = BuildConfig.WRITE_TIMEOUT_SEC.toLong()
         return sec to TimeUnit.SECONDS
     }
+
+    override fun isDebugBuild() = BuildConfig.DEBUG
 }

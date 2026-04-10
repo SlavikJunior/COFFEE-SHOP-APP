@@ -14,6 +14,7 @@ val localProperties = Properties().apply {
 }
 
 val baseUrl: String = localProperties.getProperty("COFFEE_SHOP_BASE_URL", "\"\"")
+val testBaseUrl: String = localProperties.getProperty("COFFEE_SHOP_TEST_BASE_URL", "\"\"")
 val callTimeOut: String = localProperties.getProperty("CALL_TIMEOUT_SEC", "\"\"")
 val readTimeOut: String = localProperties.getProperty("READ_TIMEOUT_SEC", "\"\"")
 val writeTimeOut: String = localProperties.getProperty("WRITE_TIMEOUT_SEC", "\"\"")
@@ -37,6 +38,7 @@ android {
         consumerProguardFiles("consumer-rules.pro")
 
         buildConfigField("String", "COFFEE_SHOP_BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "COFFEE_SHOP_TEST_BASE_URL", "\"$testBaseUrl\"")
         buildConfigField("String", "CALL_TIMEOUT_SEC", "\"$callTimeOut\"")
         buildConfigField("String", "READ_TIMEOUT_SEC", "\"$readTimeOut\"")
         buildConfigField("String", "WRITE_TIMEOUT_SEC", "\"$writeTimeOut\"")
