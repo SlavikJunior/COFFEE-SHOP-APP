@@ -14,11 +14,12 @@ coroutines = "1.10.2"
 kotlinxSerializationJson = "1.10.0"
 retrofit = "3.0.0"
 okhttp = "5.3.2"
-navigation3 = "1.1.0-rc01"
+navigation3 = "1.1.0"
+navigation3Router = "1.0.3"
 room = "2.8.4"
 lifecycleVersion = "2.10.0"
 dagger = "2.59.2"
-ksp = "2.3.4"
+ksp = "2.3.6"
 jetbrainsKotlinJvm = "2.3.20"
 
 
@@ -53,6 +54,7 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
 navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "navigation3" }
+navigation3-router = { group = "io.github.arttttt.nav3router", name = "nav3router", version.ref = "navigation3Router" }
 lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleVersion" }
 lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name = "llifecycle-viewmodel-savedstate", version.ref = "lifecycleVersion" }
 lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycleVersion" }
@@ -60,6 +62,12 @@ dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dag
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 
 [bundles]
+nav3 = [
+    "navigation3-runtime",
+    "navigation3-ui",
+    "navigation3-router"
+]
+
 lifecycle-viewmodel = [
     "lifecycle-viewmodel-compose",
 #    "lifecycle-viewmodel-savedstate",
