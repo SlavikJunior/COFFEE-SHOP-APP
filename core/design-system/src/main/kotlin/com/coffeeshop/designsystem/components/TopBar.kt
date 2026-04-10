@@ -69,6 +69,31 @@ fun HomeTopBar(
 @Composable
 private fun HomeTopBarPreview() = HomeTopBar(onProfileClick = {})
 
+@Composable
+fun SimpleTopBar(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
+
+    CoffeeTopBarBase(
+        modifier = modifier
+    ) {
+        Text(
+            text = title.uppercase(),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 1.sp,
+            color = DarkBrown,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SimpleTopBarPreview() = SimpleTopBar(title = "ВХОД")
+
 /**
  * Шапка экранов профиля и авторизации: иконка-аватар слева,
  * заголовок по центру («Войти», «Профиль»), кнопка закрытия X справа.

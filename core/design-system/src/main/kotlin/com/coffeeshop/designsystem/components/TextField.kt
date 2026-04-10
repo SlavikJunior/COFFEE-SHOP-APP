@@ -1,6 +1,7 @@
 package com.coffeeshop.designsystem.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.ErrorRed
 import com.coffeeshop.designsystem.Secondary
 
 /**
@@ -88,6 +90,8 @@ fun CoffeeInputField(
     placeholder: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    prefix: String = "",
+    isError: Boolean = false,
 ) {
     Column(modifier = modifier) {
         Text(
@@ -113,16 +117,26 @@ fun CoffeeInputField(
                 .padding(vertical = 8.dp),
             decorationBox = { innerTextField ->
                 Column {
-                    if (value.isEmpty() && placeholder.isNotEmpty()) {
-                        Text(
-                            text = placeholder,
-                            fontSize = 16.sp,
-                            color = Secondary.copy(alpha = 0.6f),
-                        )
-                    } else {
-                        innerTextField()
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (prefix.isNotEmpty()) {
+                            Text(
+                                text = prefix,
+                                fontSize = 16.sp,
+                                color = DarkBrown,
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            if (value.isEmpty() && placeholder.isNotEmpty()) {
+                                Text(
+                                    text = placeholder,
+                                    fontSize = 16.sp,
+                                    color = Secondary.copy(alpha = 0.6f),
+                                )
+                            }
+                            innerTextField()
+                        }
                     }
-                    HorizontalDivider(color = Secondary.copy(alpha = 0.4f))
+                    HorizontalDivider(color = if (isError) ErrorRed else Secondary.copy(alpha = 0.4f))
                 }
             },
         )
