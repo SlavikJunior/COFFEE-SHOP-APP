@@ -36,6 +36,8 @@ android {
 }
 
 dependencies {
+    implementation(project(path = ":core:build-config:api"))
+
     api(rootProject.files("libs/api-contracts.jar"))
 
     api(libs.kotlinx.serialization.json)
