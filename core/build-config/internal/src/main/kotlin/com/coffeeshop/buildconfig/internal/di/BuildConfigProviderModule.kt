@@ -6,7 +6,7 @@ import dagger.Binds
 import dagger.Module
 
 @Module
-interface BuildConfigProviderModule {
+internal interface BuildConfigProviderModule {
 
     @Binds
     fun bindBuildConfigProvider(target: BuildConfigProviderImpl): BuildConfigProvider

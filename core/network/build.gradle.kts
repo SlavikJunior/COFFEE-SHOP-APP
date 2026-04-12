@@ -37,6 +37,7 @@ android {
 
 dependencies {
     implementation(project(path = ":core:build-config:api"))
+    implementation(project(path = ":core:di"))
 
     api(rootProject.files("libs/api-contracts.jar"))
 

@@ -1,25 +1,18 @@
 package com.coffeeshop.auth.internal.di
 
-import android.content.Context
-import com.coffeeshop.auth.internal.data.service.AuthService
-import com.coffeeshop.buildconfig.api.BuildConfigProvider
-import dagger.BindsInstance
 import dagger.Component
-import javax.inject.Singleton
 
-@Singleton
+@AuthScope
 @Component(
-    modules = [FeatureAuthModule::class]
+    modules = [FeatureAuthModule::class],
+    dependencies = [FeatureAuthDeps::class]
 )
-interface FeatureAuthComponent {
-
-    val authService: AuthService
+internal interface FeatureAuthComponent {
 
     @Component.Factory
     interface Factory {
         fun create(
-            @BindsInstance context: Context,
-            @BindsInstance buildConfigProvider: BuildConfigProvider
+            deps: FeatureAuthDeps
         ): FeatureAuthComponent
     }
 }

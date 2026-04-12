@@ -9,6 +9,7 @@ class CoffeeShopApp: Application() {
     override fun onCreate() {
         super.onCreate()
 
-        coffeeShopAppComponent = DaggerCoffeeShopAppComponent.create()
+        coffeeShopAppComponent = DaggerCoffeeShopAppComponent.builder()
+            .build()
     }
 }

@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arttttt.nav3router.Router
-import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
 import com.coffeeshop.auth.api.presentation.navigation.RegisterRoute
 import com.coffeeshop.designsystem.DarkBrown
 import com.coffeeshop.designsystem.Secondary
@@ -69,7 +68,7 @@ internal fun LoginScreenInternal(
             state = uiState.value,
             onEvent = viewModel::reduce,
             onNavigateToRegister = {
-                if (viewModel.isNavigateToLoginWithPhoneValid(viewModel.currentPhone)) {
+                if (viewModel.isNavigateWithPhoneAble(viewModel.currentPhone)) {
                     router.push(RegisterRoute(
                         phone = viewModel.currentPhone
                     ))

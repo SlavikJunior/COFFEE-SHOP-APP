@@ -46,10 +46,13 @@ android {
 dependencies {
     // deps for app component
     implementation(project(path = ":core:deps"))
+    implementation(project(path = ":core:di"))
 
     // feature deps
     implementation(project(path = ":feature:auth:api"))
     implementation(project(path = ":feature:auth:internal"))
+    implementation(project(path = ":feature:products:api"))
+    implementation(project(path = ":feature:products:internal"))
 
     // nav deps
     implementation(project(path = ":core:navigation"))

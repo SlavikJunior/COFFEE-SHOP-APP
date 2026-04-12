@@ -12,43 +12,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Singleton
 
-@Module(includes = [
-    FeatureAuthNavigationModule::class,
-    FeatureAuthBindingModule::class
-])
-internal abstract class FeatureAuthModule {
-
-    companion object {
+@Module(includes = [FeatureAuthBindingModule::class])
+internal object FeatureAuthModule {
 
         @Provides
-        @Singleton
-        fun provideOkHttpClient(
-            buildConfigProvider: BuildConfigProvider,
-            authInterceptor: AuthInterceptor
-        ): OkHttpClient {
-            val callTimeOut = buildConfigProvider.getCallTimeOut()
-            val readTimeOut = buildConfigProvider.getReadTimeOut()
-            val writeTimeout = buildConfigProvider.getWriteTimeOut()
-
-            return OkHttpClient.Builder()
-                .callTimeout(timeout = callTimeOut.component1(), unit = callTimeOut.component2())
-                .readTimeout(timeout = readTimeOut.component1(), unit = readTimeOut.component2())
-                .writeTimeout(timeout = writeTimeout.component1(), unit = writeTimeout.component2())
-                .addInterceptor(authInterceptor)
-                .build()
-        }
-
-        @Provides
-        @Singleton
+        @AuthScope
         fun provideAuthService(
-            client: OkHttpClient,
-            buildConfigProvider: BuildConfigProvider
+            retrofit: Retrofit,
         ): AuthService {
-            return Retrofit.Builder()
-                .baseUrl(buildConfigProvider.getCoffeeShopBaseUrl())
-                .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-                .client(client)
-                .build().create(AuthService::class.java)
+            return retrofit.create(AuthService::class.java)
         }
-    }
 }

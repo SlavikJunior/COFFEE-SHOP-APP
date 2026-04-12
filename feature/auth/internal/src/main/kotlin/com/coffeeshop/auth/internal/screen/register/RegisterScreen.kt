@@ -1,6 +1,5 @@
 package com.coffeeshop.auth.internal.screen.register
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -32,8 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
 import com.coffeeshop.designsystem.DarkBrown
@@ -69,7 +66,7 @@ private fun RegisterScreenInternal(
             state = uiState.value,
             onEvent = viewModel::reduce,
             onNavigateToLogin = {
-                if (viewModel.isNavigateToLoginWithPhoneValid(viewModel.currentPhone)) {
+                if (viewModel.isNavigateWithPhoneAble(viewModel.currentPhone)) {
                     router.push(LoginRoute(
                         phone = viewModel.currentPhone
                     ))
@@ -84,12 +81,6 @@ private fun RegisterScreenInternal(
         }
     }
 }
-
-private val RegisterUiState.isLoading: Boolean
-    get() = when (this) {
-        is RegisterUiState.InputData -> isLoading
-        is RegisterUiState.EnteringCode -> isLoading
-    }
 
 @Composable
 private fun RegisterContent(

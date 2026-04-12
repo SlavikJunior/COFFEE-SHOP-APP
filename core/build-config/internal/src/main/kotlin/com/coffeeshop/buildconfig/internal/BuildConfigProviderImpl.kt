@@ -2,8 +2,9 @@ package com.coffeeshop.buildconfig.internal
 
 import com.coffeeshop.buildconfig.api.BuildConfigProvider
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class BuildConfigProviderImpl : BuildConfigProvider {
+class BuildConfigProviderImpl @Inject constructor() : BuildConfigProvider {
 
     override fun getCoffeeShopBaseUrl() = BuildConfig.COFFEE_SHOP_BASE_URL
 

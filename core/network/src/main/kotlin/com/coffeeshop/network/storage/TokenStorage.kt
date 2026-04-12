@@ -2,11 +2,12 @@ package com.coffeeshop.network.storage
 
 import android.content.Context
 import androidx.core.content.edit
+import com.coffeeshop.di.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class TokenStorage
 @Inject constructor(
-    context: Context
+    @ApplicationContext context: Context
 ) {
 
     private val prefs = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE)

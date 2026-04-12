@@ -34,9 +34,14 @@ android {
 }
 
 dependencies {
+    implementation(project(path = ":core:build-config:api"))
+    implementation(project(path = ":core:build-config:internal"))
+
+    implementation(libs.dagger.core)
+    ksp(libs.dagger.compiler)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

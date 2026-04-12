@@ -16,7 +16,7 @@ import javax.inject.Singleton
 internal object NetworkModule {
 
     @Provides
-    @Singleton
+    @NetworkScope
     fun provideOkHttpClient(
         buildConfigProvider: BuildConfigProvider,
         authInterceptor: AuthInterceptor
@@ -39,7 +39,7 @@ internal object NetworkModule {
     }
 
     @Provides
-    @Singleton
+    @NetworkScope
     fun provideRetrofit(
         client: OkHttpClient,
         buildConfigProvider: BuildConfigProvider
