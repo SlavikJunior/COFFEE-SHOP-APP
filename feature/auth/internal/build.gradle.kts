@@ -47,7 +47,7 @@ dependencies {
     implementation(project(":core:build-config:api"))
     implementation(project(":core:design-system"))
     implementation(project(":feature:auth:api"))
-    implementation(project(":feature:products:api"))
+    implementation(project(":feature:catalog:api"))
 
     // compose
     implementation(platform(libs.androidx.compose.bom))

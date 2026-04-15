@@ -40,7 +40,7 @@ import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.SimpleTopBar
 import com.coffeshop.navigation.Route
-import com.coffeshop.products.api.presentation.navigation.ProductsRoute
+import com.coffeshop.products.api.presentation.navigation.CatalogRoute
 
 @Composable
 fun LoginScreen(
@@ -59,7 +59,7 @@ internal fun LoginScreenInternal(
 
     LaunchedEffect(Unit) {
         viewModel.navigateToHome.collect {
-            router.replaceCurrent(ProductsRoute(isLoggedIn = true))
+            router.replaceCurrent(CatalogRoute(isLoggedIn = true))
         }
     }
 

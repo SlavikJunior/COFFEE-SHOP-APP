@@ -51,8 +51,8 @@ dependencies {
     // feature deps
     implementation(project(path = ":feature:auth:api"))
     implementation(project(path = ":feature:auth:internal"))
-    implementation(project(path = ":feature:products:api"))
-    implementation(project(path = ":feature:products:internal"))
+    implementation(project(path = ":feature:catalog:api"))
+    implementation(project(path = ":feature:catalog:internal"))
 
     // nav deps
     implementation(project(path = ":core:navigation"))

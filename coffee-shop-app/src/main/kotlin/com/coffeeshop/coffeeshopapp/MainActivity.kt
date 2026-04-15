@@ -16,6 +16,8 @@ import com.coffeeshop.auth.api.presentation.navigation.RegisterRoute
 import com.coffeeshop.auth.internal.navigation.loginScreenEntry
 import com.coffeeshop.auth.internal.navigation.registerScreenEntry
 import com.coffeshop.navigation.Route
+import com.coffeshop.products.api.presentation.navigation.CatalogRoute
+import com.coffeshop.products.internal.navigation.catalogScreenEntry
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
@@ -24,11 +26,11 @@ class MainActivity : ComponentActivity() {
     internal lateinit var router: Router<Route>
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (application as CoffeeShopApp).coffeeShopAppComponent.inject(this)
+        coffeeShopAppComponent().inject(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val backStack = rememberNavBackStack(LoginRoute())
+            val backStack = rememberNavBackStack(CatalogRoute())
             Nav3Host(
                 backStack = backStack,
                 router = router,
@@ -39,6 +41,7 @@ class MainActivity : ComponentActivity() {
                     entryProvider = entryProvider {
                         loginScreenEntry(router)
                         registerScreenEntry(router)
+                        catalogScreenEntry(router)
                     }
                 )
             }

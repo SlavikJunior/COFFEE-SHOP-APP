@@ -14,4 +14,12 @@ interface FeatureAuthDeps {
     val client: OkHttpClient
 
     val retrofit: Retrofit
+
+//    companion object {
+//
+//        fun create(): FeatureAuthDeps {
+//            return DaggerFeatureAuthDeps.builder()
+//                .build()
+//        }
+//    }
 }
