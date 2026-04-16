@@ -1,8 +1,12 @@
 package com.coffeeshop.common.model.support
 
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import com.coffeeshop.utils.isNotNegative
 
-@OptIn(ExperimentalUuidApi::class)
 @JvmInline
-value class ID(val value: String = Uuid.random().toString())
+value class ID(val value: Long) {
+
+    init {
+
+        require(value.isNotNegative()) { "ID cannot be negative" }
+    }
+}

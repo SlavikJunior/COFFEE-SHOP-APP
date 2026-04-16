@@ -12,5 +12,6 @@ kotlin {
     }
 }
 dependencies {
+    implementation(project(path = ":core:utils"))
     implementation(libs.coroutines)
 }

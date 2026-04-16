@@ -7,6 +7,8 @@ import com.coffeeshop.common.model.products.Product
 import com.coffeeshop.common.model.products.ProductWithModifiers
 import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.common.result.Result
+import com.coffeeshop.common.result.asErrorResult
+import com.coffeeshop.common.result.asSuccessResult
 import com.coffeshop.products.api.domain.repository.ProductsRepository
 import com.coffeshop.products.internal.data.mapper.toDomain
 import com.coffeshop.products.internal.data.service.ProductsService
@@ -30,10 +32,10 @@ internal class ProductsRepositoryImpl
 
             Log.i(TAG, "response on get full menu: $response")
 
-            Result.Success(products)
+            products.asSuccessResult()
         } catch (cause: Throwable) {
             Log.e(TAG, "getFullMenu error: $cause")
-            Result.Error(cause)
+            cause.asErrorResult()
         }
     }
 
@@ -56,11 +58,11 @@ internal class ProductsRepositoryImpl
     override suspend fun getProductDetailByProductId(productId: ID): Result<ProductWithModifiers> =
         withContext(dispatcher) {
             try {
-                val dto = service.getProductDetail(productId.value.toLong())
-                Result.Success(dto.toDomain())
+                val dto = service.getProductDetail(productId.value)
+                dto.toDomain().asSuccessResult()
             } catch (cause: Throwable) {
                 Log.e(TAG, "getProductDetail error: $cause")
-                Result.Error(cause)
+                cause.asErrorResult()
             }
         }
 

@@ -1,9 +1,9 @@
 package com.coffeeshop.common.model.products
 
-enum class CategoryType {
+enum class CategoryType(val russianName: String) {
 
-    COFFEE,
-    MATCHA,
-    NON_COFFEE,
-    SIGNATURE
+    COFFEE("кофе"),
+    MATCHA("матча"),
+    NON_COFFEE("не кофе"),
+    SIGNATURE("фирменные")
 }
