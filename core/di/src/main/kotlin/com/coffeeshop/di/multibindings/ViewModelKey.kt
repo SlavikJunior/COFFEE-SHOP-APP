@@ -1,4 +1,4 @@
-package com.coffeeshop.di.bindingkey
+package com.coffeeshop.di.multibindings
 
 import androidx.lifecycle.ViewModel
 import dagger.MapKey

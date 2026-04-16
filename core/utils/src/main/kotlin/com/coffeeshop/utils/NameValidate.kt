@@ -1,4 +1,4 @@
-package com.coffeshop.utils
+package com.coffeeshop.utils
 
 private val nameRegex = Regex("""^[А-ЯЁа-яёA-Za-z][А-ЯЁа-яёA-Za-z\s\-]{1,49}$""")
 

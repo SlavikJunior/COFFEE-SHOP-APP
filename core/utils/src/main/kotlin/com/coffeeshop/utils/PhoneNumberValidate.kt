@@ -1,4 +1,4 @@
-package com.coffeshop.utils
+package com.coffeeshop.utils
 
 private val russianPhoneRegex = Regex("^\\+7\\d{10}$")
 
