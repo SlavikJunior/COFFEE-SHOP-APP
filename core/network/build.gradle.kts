@@ -38,6 +38,8 @@ android {
 dependencies {
     implementation(project(path = ":core:build-config:api"))
     implementation(project(path = ":core:di"))
+    implementation(project(path = ":core:utils"))
+    implementation(project(path = ":core:common"))
 
     api(rootProject.files("libs/api-contracts.jar"))
 
@@ -54,6 +56,7 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.coroutines)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.security.crypto)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Component(modules = [NetworkModule::class])
 @NetworkScope
-internal interface NetworkComponent {
+interface NetworkComponent {
 
     val retrofit: Retrofit
 

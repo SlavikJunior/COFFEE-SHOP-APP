@@ -1,5 +1,6 @@
 [versions]
 agp = "9.1.0"
+securityCrypto = "1.1.0-alpha06"
 coil = "3.4.0"
 coreKtx = "1.18.0"
 junit = "4.13.2"
@@ -60,6 +61,7 @@ lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name = "llifecy
 lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycleVersion" }
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
+security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 
 [bundles]
 nav3 = [

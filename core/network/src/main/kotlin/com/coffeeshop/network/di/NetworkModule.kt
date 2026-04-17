@@ -1,7 +1,10 @@
 package com.coffeeshop.network.di
 
 import com.coffeeshop.buildconfig.api.BuildConfigProvider
+import com.coffeeshop.network.TokenService
 import com.coffeeshop.network.interceptors.AuthInterceptor
+import com.coffeeshop.network.interceptors.ContentTypeAndAcceptInterceptor
+import com.coffeeshop.network.interceptors.TokenAuthenticator
 import dagger.Module
 import dagger.Provides
 import kotlinx.serialization.json.Json
@@ -17,9 +20,20 @@ internal object NetworkModule {
 
     @Provides
     @NetworkScope
+    fun provideJson(): Json = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = true
+        encodeDefaults = true
+        decodeEnumsCaseInsensitive = true
+    }
+
+    @Provides
+    @NetworkScope
     fun provideOkHttpClient(
         buildConfigProvider: BuildConfigProvider,
-        authInterceptor: AuthInterceptor
+        authInterceptor: AuthInterceptor,
+        contentTypeAndAcceptInterceptor: ContentTypeAndAcceptInterceptor,
+        tokenAuthenticator: TokenAuthenticator
     ): OkHttpClient {
         val callTimeOut = buildConfigProvider.getCallTimeOut()
         val readTimeOut = buildConfigProvider.getReadTimeOut()
@@ -30,17 +44,19 @@ internal object NetworkModule {
             .readTimeout(timeout = readTimeOut.component1(), unit = readTimeOut.component2())
             .writeTimeout(timeout = writeTimeout.component1(), unit = writeTimeout.component2())
             .addInterceptor(authInterceptor)
+            .addInterceptor(contentTypeAndAcceptInterceptor)
+            .authenticator(tokenAuthenticator)
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = if (buildConfigProvider.isDebugBuild()) HttpLoggingInterceptor.Level.BODY
-                else HttpLoggingInterceptor.Level.BASIC
-            }
-            )
+                else HttpLoggingInterceptor.Level.NONE
+            })
             .build()
     }
 
     @Provides
     @NetworkScope
     fun provideRetrofit(
+        json: Json,
         client: OkHttpClient,
         buildConfigProvider: BuildConfigProvider
     ): Retrofit {
@@ -50,8 +66,13 @@ internal object NetworkModule {
                     buildConfigProvider.getCoffeeShopTestBaseUrl()
                 else buildConfigProvider.getCoffeeShopBaseUrl()
             )
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .client(client)
             .build()
     }
+
+    @Provides
+    @NetworkScope
+    fun provideTokenService(retrofit: Retrofit): TokenService =
+        retrofit.create(TokenService::class.java)
 }
