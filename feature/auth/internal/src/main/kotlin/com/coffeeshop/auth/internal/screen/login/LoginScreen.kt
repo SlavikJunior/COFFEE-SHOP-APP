@@ -39,6 +39,7 @@ import com.coffeeshop.designsystem.White
 import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.SimpleTopBar
+import com.coffeeshop.designsystem.components.LoadingOverlay
 import com.coffeshop.navigation.Route
 import com.coffeshop.products.api.presentation.navigation.CatalogRoute
 
@@ -189,21 +190,6 @@ private fun LoginContent(
         } else {
             Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-}
-
-@Composable
-private fun LoadingOverlay() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.35f)),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(56.dp),
-            color = DarkBrown
-        )
     }
 }
 

@@ -15,11 +15,11 @@ import javax.inject.Singleton
 @Module(includes = [FeatureAuthBindingModule::class])
 internal object FeatureAuthModule {
 
-        @Provides
-        @AuthScope
-        fun provideAuthService(
-            retrofit: Retrofit,
-        ): AuthService {
-            return retrofit.create(AuthService::class.java)
-        }
+    @Provides
+    @AuthScope
+    fun provideAuthService(
+        retrofit: Retrofit,
+    ): AuthService {
+        return retrofit.create(AuthService::class.java)
+    }
 }

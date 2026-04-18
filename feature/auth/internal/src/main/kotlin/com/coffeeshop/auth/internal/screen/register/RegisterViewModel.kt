@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.coffeeshop.auth.api.domain.usecase.RegisterByPhoneNumberAndNameAndSmsCodeUseCase
 import com.coffeeshop.auth.api.domain.usecase.SendSmsCodeByPhoneNumberUseCase
-import com.coffeeshop.auth.internal.screen.login.LoginViewModel
 import com.coffeeshop.auth.internal.screen.vmfactory.BaseAuthViewModel
 import com.coffeeshop.auth.internal.screen.vmfactory.SavedStateHandleFactory
 import com.coffeeshop.common.model.auth.AuthStatus
@@ -15,8 +14,8 @@ import com.coffeeshop.common.model.auth.NameModel
 import com.coffeeshop.common.model.auth.PhoneNumberModel
 import com.coffeeshop.common.model.auth.SmsCodeModel
 import com.coffeeshop.common.result.Result
-import com.coffeshop.utils.validateName
-import com.coffeshop.utils.validateRussianPhoneNumberBy_E_164
+import com.coffeeshop.utils.validateName
+import com.coffeeshop.utils.validateRussianPhoneNumberBy_E_164
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlin.reflect.KClass
 
 internal sealed interface RegisterUiState {

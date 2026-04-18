@@ -7,7 +7,7 @@ import dagger.Component
     modules = [FeatureAuthModule::class],
     dependencies = [FeatureAuthDeps::class]
 )
-internal interface FeatureAuthComponent {
+interface FeatureAuthComponent {
 
     @Component.Factory
     interface Factory {

@@ -2,6 +2,7 @@ package com.coffeeshop.auth.internal.domain.usecase
 
 import com.coffeeshop.auth.api.domain.repository.AuthRepository
 import com.coffeeshop.auth.api.domain.usecase.SendSmsCodeByPhoneNumberUseCase
+import com.coffeeshop.common.exception.BaseException
 import com.coffeeshop.common.model.auth.AuthStatus
 import com.coffeeshop.common.model.auth.PhoneNumberModel
 import com.coffeeshop.common.result.Result
@@ -16,7 +17,7 @@ class SendSmsCodeByPhoneNumberUseCaseImpl
     private val requestTimestamps = ArrayDeque<Long>()
 
     override suspend fun invoke(phoneNumber: PhoneNumberModel): Result<AuthStatus> {
-        if (!checkRateLimit()) return Result.Error(Exception("Too many requests"))
+        if (!checkRateLimit()) return Result.Error(BaseException.ToManyRequestsException())
         return authRepository.sendSms(phoneNumber)
     }
 

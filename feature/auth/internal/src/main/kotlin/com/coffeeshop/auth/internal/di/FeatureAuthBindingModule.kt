@@ -12,13 +12,10 @@ import com.coffeeshop.auth.internal.domain.usecase.VerifySmsCodeByPhoneNumberUse
 import com.coffeeshop.auth.internal.screen.login.LoginViewModel
 import com.coffeeshop.auth.internal.screen.register.RegisterViewModel
 import com.coffeeshop.auth.internal.screen.vmfactory.SavedStateHandleFactory
-import com.coffeeshop.di.bindingkey.ViewModelKey
+import com.coffeeshop.di.multibindings.ViewModelKey
 import dagger.Binds
-import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
-import dagger.multibindings.IntoSet
-import kotlin.reflect.KClass
 
 @Module
 internal interface FeatureAuthBindingModule {
@@ -36,12 +33,10 @@ internal interface FeatureAuthBindingModule {
     fun bindAuthRepository(target: AuthRepositoryImpl): AuthRepository
 
     @Binds
-    @IntoMap
-    @ViewModelKey(RegisterViewModel::class)
+    @[IntoMap ViewModelKey(RegisterViewModel::class)]
     fun bindRegisterViewModel(factory: RegisterViewModel.Factory): SavedStateHandleFactory<out ViewModel>
 
     @Binds
-    @IntoMap
-    @ViewModelKey(LoginViewModel::class)
+    @[IntoMap ViewModelKey(LoginViewModel::class)]
     fun bindLoginViewModel(factory: LoginViewModel.Factory): SavedStateHandleFactory<out ViewModel>
 }
