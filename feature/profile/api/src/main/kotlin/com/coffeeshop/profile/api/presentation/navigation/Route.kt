@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ProfileRoute(
-    val isLoggedIn: Boolean
+    val isLoggedIn: Boolean = false
 ): Route
