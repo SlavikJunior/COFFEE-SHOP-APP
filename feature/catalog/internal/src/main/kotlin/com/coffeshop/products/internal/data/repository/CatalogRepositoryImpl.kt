@@ -11,15 +11,15 @@ import com.coffeeshop.common.result.asErrorResult
 import com.coffeeshop.common.result.asSuccessResult
 import com.coffeshop.products.api.domain.repository.ProductsRepository
 import com.coffeshop.products.internal.data.mapper.toDomain
-import com.coffeshop.products.internal.data.service.ProductsService
+import com.coffeshop.products.internal.data.service.CatalogService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-internal class ProductsRepositoryImpl
+internal class CatalogRepositoryImpl
 @Inject constructor(
-    private val service: ProductsService,
+    private val service: CatalogService,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ProductsRepository {
 
@@ -80,6 +80,6 @@ internal class ProductsRepositoryImpl
     }
 
     private companion object {
-        const val TAG = "ProductsRepository"
+        const val TAG = "CatalogRepository"
     }
 }

@@ -101,7 +101,7 @@ internal class CatalogViewModel
 }
 
 private fun Product.toUiItem() = ProductUiItem(
-    id = productId.value,
+    id = productId.value.toString(),
     name = productName.value,
     price = prices.values.minByOrNull { it.firstPart }?.formatPrice() ?: "",
     imageUrl = imageUrl,

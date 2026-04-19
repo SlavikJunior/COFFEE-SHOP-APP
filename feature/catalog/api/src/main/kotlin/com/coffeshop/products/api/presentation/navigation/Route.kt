@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CatalogRoute(
-    val isLoggedIn: Boolean = true
+    val isLoggedIn: Boolean = true,
+    val isRetryAfterError: Boolean = false
 ) : Route

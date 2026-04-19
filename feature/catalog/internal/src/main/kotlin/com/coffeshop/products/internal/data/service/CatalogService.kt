@@ -5,7 +5,7 @@ import com.coffeeshop.contracts.MenuResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-internal interface ProductsService {
+internal interface CatalogService {
 
     @GET("api/menu")
     suspend fun getFullMenu(): MenuResponse

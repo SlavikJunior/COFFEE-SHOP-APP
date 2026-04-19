@@ -1,5 +1,6 @@
 package com.coffeshop.products.internal.data.mapper
 
+import com.coffeeshop.common.model.auth.NameModel
 import com.coffeeshop.common.model.products.Category
 import com.coffeeshop.common.model.products.CategoryType
 import com.coffeeshop.common.model.products.Modifier
@@ -7,7 +8,6 @@ import com.coffeeshop.common.model.products.ModifierCategory
 import com.coffeeshop.common.model.products.Product
 import com.coffeeshop.common.model.products.ProductWithModifiers
 import com.coffeeshop.common.model.support.ID
-import com.coffeeshop.common.model.support.Name
 import com.coffeeshop.common.model.support.Price
 import com.coffeeshop.common.model.support.Size
 import com.coffeeshop.contracts.MenuCategory
@@ -19,8 +19,8 @@ import com.coffeeshop.contracts.VolumeDto
 internal fun MenuItemSummaryDto.toDomain(): Product {
     val sizeMap = volumes.toSizeMap()
     return Product(
-        productId = ID(id.toString()),
-        productName = Name(name),
+        productId = ID(id),
+        productName = NameModel(name),
         description = description,
         category = category.toDomain(),
         prices = sizeMap,
@@ -33,8 +33,8 @@ internal fun MenuItemSummaryDto.toDomain(): Product {
 internal fun MenuItemDetailDto.toDomain(): ProductWithModifiers {
     val sizeMap = volumes.toSizeMap()
     return ProductWithModifiers(
-        productId = ID(id.toString()),
-        productName = Name(name),
+        productId = ID(id),
+        productName = NameModel(name),
         description = description,
         category = category.toDomain(),
         prices = sizeMap,
@@ -46,16 +46,16 @@ internal fun MenuItemDetailDto.toDomain(): ProductWithModifiers {
 }
 
 internal fun ModifierDto.toDomain(): Modifier = Modifier(
-    additiveId = ID(id.toString()),
-    additiveName = Name(name),
+    additiveId = ID(id),
+    additiveName = NameModel(name),
     price = price.toPrice(),
     category = ModifierCategory.valueOf(category.name),
     isAvailable = true,
 )
 
 private fun MenuCategory.toDomain(): Category = Category(
-    categoryId = ID(name),
-    categoryName = Name(name),
+    categoryId = ID(ordinal.toLong()),
+    categoryName = NameModel(name),
     categoryType = CategoryType.valueOf(name),
     sortOrder = ordinal,
 )

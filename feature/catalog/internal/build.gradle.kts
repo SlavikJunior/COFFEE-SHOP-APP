@@ -39,11 +39,14 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:utils"))
     implementation(project(":core:network"))
     implementation(project(":core:common"))
+    implementation(project(":core:di"))
     implementation(project(":core:design-system"))
     implementation(project(":core:build-config:api"))
     implementation(project(":feature:catalog:api"))
+    implementation(project(":feature:profile:api"))
 
     // DI
     implementation(libs.dagger.core)
@@ -65,6 +68,7 @@ dependencies {
     // bundles
     implementation(libs.bundles.lifecycle.viewmodel)
 
+    implementation(libs.coroutines)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
