@@ -11,8 +11,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.arttttt.nav3router.Nav3Host
 import com.arttttt.nav3router.Router
-import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
-import com.coffeeshop.auth.api.presentation.navigation.RegisterRoute
 import com.coffeeshop.auth.internal.navigation.loginScreenEntry
 import com.coffeeshop.auth.internal.navigation.registerScreenEntry
 import com.coffeshop.navigation.Route
@@ -29,6 +27,7 @@ class MainActivity : ComponentActivity() {
         coffeeShopAppComponent().inject(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val viewModelFactory = featureCatalogComponent().viewModelFactory
         setContent {
             val backStack = rememberNavBackStack(CatalogRoute())
             Nav3Host(
@@ -41,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     entryProvider = entryProvider {
                         loginScreenEntry(router)
                         registerScreenEntry(router)
-                        catalogScreenEntry(router)
+                        catalogScreenEntry(router, viewModelFactory)
                     }
                 )
             }
