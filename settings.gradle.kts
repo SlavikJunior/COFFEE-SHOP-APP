@@ -23,19 +23,33 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "COFFEE SHOP APP"
+
+// app
 include(":coffee-shop-app")
+
+
+// sample apps
+include(":sample-catalog")
+
+
+// core modules
+include(":core:utils")
+include(":core:common")
 include(":core:network")
 include(":core:design-system")
-include(":feature:auth:api")
-include(":feature:auth:internal")
-include(":core:common")
-include(":core:navigation")
-include(":core:utils")
+include(":core:di")
 include(":core:deps")
+include(":core:navigation")
 include(":core:build-config:api")
 include(":core:build-config:internal")
+
+
+// features
+include(":feature:auth:api")
+include(":feature:auth:internal")
+
 include(":feature:catalog:api")
 include(":feature:catalog:internal")
-include(":core:di")
+
 include(":feature:profile:api")
 include(":feature:profile:internal")
