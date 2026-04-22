@@ -28,14 +28,12 @@ rootProject.name = "COFFEE SHOP APP"
 include(":coffee-shop-app")
 
 
-// sample apps
-include(":sample-catalog")
-
-
 // core modules
 include(":core:utils")
 include(":core:common")
 include(":core:network")
+include(":core:database")
+include(":core:json")
 include(":core:design-system")
 include(":core:di")
 include(":core:deps")
