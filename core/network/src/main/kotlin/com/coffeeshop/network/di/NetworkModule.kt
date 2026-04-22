@@ -20,15 +20,6 @@ internal object NetworkModule {
 
     @Provides
     @NetworkScope
-    fun provideJson(): Json = Json {
-        ignoreUnknownKeys = true
-        explicitNulls = true
-        encodeDefaults = true
-        decodeEnumsCaseInsensitive = true
-    }
-
-    @Provides
-    @NetworkScope
     fun provideOkHttpClient(
         buildConfigProvider: BuildConfigProvider,
         authInterceptor: AuthInterceptor,

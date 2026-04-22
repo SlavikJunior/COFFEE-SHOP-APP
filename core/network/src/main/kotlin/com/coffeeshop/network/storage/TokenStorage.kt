@@ -6,6 +6,7 @@ import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.coffeeshop.di.qualifiers.ApplicationContext
+import com.coffeeshop.di.qualifiers.DispatcherIO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,7 +15,7 @@ import javax.inject.Inject
 class TokenStorage
 @Inject constructor(
     @ApplicationContext context: Context,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
