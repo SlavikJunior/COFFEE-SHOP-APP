@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.coffeshop.products.internal"
+    namespace = "com.coffeshop.catalog.internal"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
