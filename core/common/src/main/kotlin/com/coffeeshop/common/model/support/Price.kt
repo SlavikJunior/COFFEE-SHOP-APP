@@ -1,5 +1,8 @@
 package com.coffeeshop.common.model.support
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Price(
     val firstPart: Int,
     val secondPart: Int,
@@ -31,11 +34,8 @@ data class Price(
     }
 
     override fun compareTo(other: Price): Int {
-        return when {
-            this > other -> 1
-            this < other -> -1
-            this == other -> 0
-            else -> Int.MAX_VALUE
-        }
+        val thisTotal = firstPart * 100L + secondPart
+        val otherTotal = other.firstPart * 100L + other.secondPart
+        return thisTotal.compareTo(otherTotal)
     }
 }

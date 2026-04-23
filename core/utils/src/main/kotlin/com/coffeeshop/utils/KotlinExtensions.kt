@@ -11,15 +11,7 @@ fun Number.isMoreThan(other: Number): Boolean = this > other
 
 fun Number.isNoLessThan(other: Number): Boolean = this >= other
 
-operator fun Number.compareTo(other: Number): Int {
-    val result = when {
-        this > other -> 1
-        this < other -> - 1
-        this == other -> 1
-        else -> throw IllegalArgumentException()
-    }
-    return result
-}
+operator fun Number.compareTo(other: Number): Int = this.toDouble().compareTo(other.toDouble())
 
 @Suppress("UNCHECKED_CAST")
 inline fun <reified K, T> Iterable<T>.groupBy(): Map<K, List<T>> {
