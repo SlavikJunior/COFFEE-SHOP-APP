@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
 
@@ -31,11 +32,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
     implementation(project(path = ":feature:profile:api"))
     implementation(project(path = ":core:network"))
+
+    implementation(libs.bundles.nav3)
 
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)
