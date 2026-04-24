@@ -2,13 +2,11 @@ package com.coffeeshop.coffeeshopapp
 
 import android.app.Application
 import android.content.Context
-import com.coffeeshop.auth.internal.di.DaggerFeatureAuthComponent
-import com.coffeeshop.auth.internal.di.FeatureAuthComponent
-import com.coffeeshop.auth.internal.di.FeatureAuthDeps
-import com.coffeshop.deps.AppDeps
-import com.coffeshop.products.internal.di.DaggerFeatureCatalogComponent
-import com.coffeshop.products.internal.di.FeatureCatalogComponent
+import com.coffeeshop.di.CoreDiComponent
 import com.coffeeshop.network.di.DaggerNetworkComponent
+import com.coffeshop.catalog.internal.di.DaggerFeatureCatalogComponent
+import com.coffeshop.catalog.internal.di.FeatureCatalogComponent
+import com.coffeshop.deps.AppDeps
 
 class CoffeeShopApp : Application() {
 
@@ -27,6 +25,7 @@ class CoffeeShopApp : Application() {
         val networkComponent = DaggerNetworkComponent.builder()
             .applicationContext(this)
             .buildConfigProvider(appDeps.buildConfigProvider)
+            .coreDiComponent(CoreDiComponent.get())
             .build()
 
         coffeeShopAppComponent = DaggerCoffeeShopAppComponent.builder()

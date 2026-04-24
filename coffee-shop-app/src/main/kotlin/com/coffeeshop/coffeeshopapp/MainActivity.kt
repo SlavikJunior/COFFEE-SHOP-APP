@@ -13,9 +13,10 @@ import com.arttttt.nav3router.Nav3Host
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.internal.navigation.loginScreenEntry
 import com.coffeeshop.auth.internal.navigation.registerScreenEntry
+import com.coffeeshop.profile.internal.navigation.profileScreenEntry
+import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
+import com.coffeshop.catalog.internal.navigation.catalogScreenEntry
 import com.coffeshop.navigation.Route
-import com.coffeshop.products.api.presentation.navigation.CatalogRoute
-import com.coffeshop.products.internal.navigation.catalogScreenEntry
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
                         loginScreenEntry(router)
                         registerScreenEntry(router)
                         catalogScreenEntry(router, viewModelFactory)
+                        profileScreenEntry(router)
                     }
                 )
             }
