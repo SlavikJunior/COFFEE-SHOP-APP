@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,15 +30,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.api.presentation.navigation.RegisterRoute
-import com.coffeeshop.designsystem.DarkBrown
 import com.coffeeshop.designsystem.Secondary
 import com.coffeeshop.designsystem.White
 import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
-import com.coffeeshop.designsystem.components.SimpleTopBar
 import com.coffeeshop.designsystem.components.LoadingOverlay
+import com.coffeeshop.designsystem.components.SimpleTopBar
+import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
 import com.coffeshop.navigation.Route
-import com.coffeshop.products.api.presentation.navigation.CatalogRoute
 
 @Composable
 fun LoginScreen(

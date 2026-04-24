@@ -39,8 +39,8 @@ import com.coffeeshop.designsystem.White
 import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.SimpleTopBar
+import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
 import com.coffeshop.navigation.Route
-import com.coffeshop.products.api.presentation.navigation.CatalogRoute
 
 @Composable
 fun RegisterScreen(
