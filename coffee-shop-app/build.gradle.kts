@@ -47,8 +47,10 @@ dependencies {
     // deps for app component
     implementation(project(path = ":core:deps"))
     implementation(project(path = ":core:di"))
+    implementation(project(path = ":core:json"))
     implementation(project(path = ":core:network"))
     implementation(project(path = ":core:build-config:api"))
+    implementation(project(path = ":core:build-config:internal"))
 
     // feature deps
     implementation(project(path = ":feature:auth:api"))

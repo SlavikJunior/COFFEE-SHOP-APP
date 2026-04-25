@@ -10,6 +10,6 @@ import javax.inject.Singleton
 internal object AppNavigationModule {
 
     @Provides
-    @Singleton
+    @CoffeeShopAppScope
     fun provideRouter(): Router<Route> = Router()
 }

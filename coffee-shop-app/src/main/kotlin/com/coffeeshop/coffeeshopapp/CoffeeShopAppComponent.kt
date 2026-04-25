@@ -2,12 +2,16 @@ package com.coffeeshop.coffeeshopapp
 
 import android.content.Context
 import com.coffeeshop.di.qualifiers.ApplicationContext
+import com.coffeshop.deps.AppDeps
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
 
-@Singleton
-@Component(modules = [AppNavigationModule::class])
+@CoffeeShopAppScope
+@Component(
+    modules = [AppNavigationModule::class],
+    dependencies = [AppDeps::class]
+)
 interface CoffeeShopAppComponent {
 
     @ApplicationContext
@@ -19,6 +23,8 @@ interface CoffeeShopAppComponent {
         @BindsInstance
         @ApplicationContext
         fun applicationContext(applicationContext: Context): Builder
+
+        fun appDeps(appDeps: AppDeps): Builder
 
         fun build(): CoffeeShopAppComponent
     }

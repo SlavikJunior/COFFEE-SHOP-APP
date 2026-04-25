@@ -3,6 +3,8 @@ package com.coffeeshop.coffeeshopapp
 import android.app.Application
 import android.content.Context
 import com.coffeeshop.di.CoreDiComponent
+import com.coffeeshop.json.DaggerJsonComponent
+import com.coffeeshop.json.JsonComponent
 import com.coffeeshop.network.di.DaggerNetworkComponent
 import com.coffeshop.catalog.internal.di.DaggerFeatureCatalogComponent
 import com.coffeshop.catalog.internal.di.FeatureCatalogComponent
@@ -26,16 +28,19 @@ class CoffeeShopApp : Application() {
             .applicationContext(this)
             .buildConfigProvider(appDeps.buildConfigProvider)
             .coreDiComponent(CoreDiComponent.get())
+            .jsonComponent(JsonComponent.get)
             .build()
 
         coffeeShopAppComponent = DaggerCoffeeShopAppComponent.builder()
             .applicationContext(this)
+            .appDeps(appDeps)
             .build()
 
 //        featureAuthComponent = DaggerFeatureAuthComponent.factory().create(authDeps)
 
         featureCatalogComponent = DaggerFeatureCatalogComponent.builder()
             .okHttpClient(networkComponent.okHttpClient)
+            .retrofit(networkComponent.retrofit)
             .buildConfigProvider(appDeps.buildConfigProvider)
             .build()
     }
