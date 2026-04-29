@@ -1,5 +1,6 @@
 package com.coffeeshop.database.common
 
+import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import com.coffeeshop.common.model.products.Category
 import com.coffeeshop.common.model.support.Price
@@ -7,6 +8,7 @@ import com.coffeeshop.common.model.support.Size
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
+@ProvidedTypeConverter
 class TypeConverter
 @Inject constructor(
     private val json: Json
