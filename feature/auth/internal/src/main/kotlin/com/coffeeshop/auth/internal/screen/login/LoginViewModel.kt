@@ -21,6 +21,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,7 +72,7 @@ internal class LoginViewModel
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     private val _navigateToHome = Channel<Unit>(Channel.BUFFERED)
-    val navigateToHome = _navigateToHome.receiveAsFlow()
+    val navigateToHome: Flow<Unit> = _navigateToHome.receiveAsFlow()
 
     fun reduce(event: LoginUiStateEvent) {
         when (event) {

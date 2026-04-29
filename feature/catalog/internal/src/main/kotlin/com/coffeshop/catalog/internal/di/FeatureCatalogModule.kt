@@ -23,6 +23,7 @@ internal object FeatureCatalogModule {
     @CatalogScope
     fun provideProductsService(
         client: OkHttpClient,
+//        retrofit: Retrofit
         buildConfigProvider: BuildConfigProvider
     ): CatalogService {
         return Retrofit.Builder()

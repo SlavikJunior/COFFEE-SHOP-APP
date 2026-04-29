@@ -20,6 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,27 +39,38 @@ import com.coffeeshop.designsystem.components.LoadingOverlay
 import com.coffeeshop.designsystem.components.SimpleTopBar
 import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
 import com.coffeshop.navigation.Route
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun LoginScreen(
     router: Router<Route>
-) = LoginScreenInternal(
-    router = router
-)
-
-@Composable
-internal fun LoginScreenInternal(
-    router: Router<Route>,
-    viewModelFactory: ViewModelProvider.Factory = LoginViewModel.previewFactory,
-    viewModel: LoginViewModel = viewModel(factory = viewModelFactory)
 ) {
-    val uiState = viewModel.uiState.collectAsState()
+    val viewModelFactory: ViewModelProvider.Factory = LoginViewModel.previewFactory,
+    val viewModel: LoginViewModel = viewModel(factory = viewModelFactory)
 
     LaunchedEffect(Unit) {
         viewModel.navigateToHome.collect {
             router.replaceCurrent(CatalogRoute(isLoggedIn = true))
         }
     }
+
+    val onEvent = remember { { event: LoginUiStateEvent -> viewModel.reduce(event) } }
+    LoginScreenInternal(
+        router = router,
+        onEvent = onEvent,
+        uiState = viewModel.uiState.collectAsState().value
+    )
+}
+
+@Composable
+internal fun LoginScreenInternal(
+    router: Router<Route>,
+    onEvent: (LoginUiStateEvent) -> Unit,
+    uiState: LoginUiState,
+//    viewModelFactory: ViewModelProvider.Factory = LoginViewModel.previewFactory,
+//    viewModel: LoginViewModel = viewModel(factory = viewModelFactory)
+) {
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         LoginContent(
