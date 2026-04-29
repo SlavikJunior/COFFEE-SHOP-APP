@@ -13,7 +13,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -23,18 +25,33 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.coffeeshop.common.model.products.CategoryType
+import com.coffeeshop.common.model.products.ModifierCategory
 import com.coffeeshop.common.model.products.Product
+import com.coffeeshop.common.model.support.Price
+import com.coffeeshop.common.model.support.Size
 import com.coffeeshop.designsystem.components.CategoryTabRow
 import com.coffeeshop.designsystem.components.HomeTopBar
 import com.coffeeshop.designsystem.components.LoadingOverlay
+import com.coffeeshop.designsystem.components.ModifierGroup
 import com.coffeeshop.designsystem.components.ProductCard
+import com.coffeeshop.designsystem.components.ProductDetailBottomSheet
+import com.coffeeshop.designsystem.components.ProductDetailState
 import com.coffeeshop.designsystem.components.RetryOverlay
-import com.coffeeshop.utils.groupBy as group
 
-private const val COFFEE_INDEX = 0
-private const val MATCHA_INDEX = 1
-private const val NON_COFFEE_INDEX = 2
-private const val SIGNATURE_INDEX = 3
+private fun Price.display(): String = buildString {
+    append(firstPart)
+    if (secondPart > 0) append(",${secondPart.toString().padStart(2, '0')}")
+    append(" ₽")
+}
+
+private fun ModifierCategory.displayName(): String = when (this) {
+    ModifierCategory.SYRUP -> "Сироп"
+    ModifierCategory.MARSHMALLOW -> "Маршмэллоу"
+    ModifierCategory.ALT_MILK -> "Альтернативное молоко"
+    ModifierCategory.VITAMIN_SHOT -> "Витаминный шот"
+}
+
+private fun Size.displayName(): String = "$ml мл"
 
 @Composable
 fun MyCatalogScreen(
@@ -87,10 +104,19 @@ private fun MyCatalogScreenContent(
                 viewModel.reduce(event = MyCatalogEvent.RetryAfterErrorClicked)
             }
         )
+
         MyCatalogUiState.Success -> MyCatalogScreenSuccessContent(
             viewModel = viewModel,
             paddingValues = paddingValues
         )
+
+        is MyCatalogUiState.ShowingProductDetail -> {
+            MyCatalogScreenSuccessContent(
+                viewModel = viewModel,
+                paddingValues = paddingValues
+            )
+            ProductDetailBottomSheetWrapper(viewModel = viewModel)
+        }
     }
 }
 
@@ -107,23 +133,14 @@ private fun MyCatalogScreenSuccessContent(
             .fillMaxSize()
     ) {
         CategoryTabRow(
-            tabs = uiState.value.products.group<CategoryType, Product>().keys.map { it.russianName },
-            selectedIndex = when(uiState.value.selectedCategoryType) {
-                CategoryType.COFFEE -> COFFEE_INDEX
-                CategoryType.MATCHA -> MATCHA_INDEX
-                CategoryType.NON_COFFEE -> NON_COFFEE_INDEX
-                CategoryType.SIGNATURE -> SIGNATURE_INDEX
-            },
-            onTabSelected = { index: Int ->
-                viewModel.reduce(event = MyCatalogEvent.ChangeCategoryType(
-                    categoryType = when(index) {
-                        COFFEE_INDEX -> CategoryType.COFFEE
-                        MATCHA_INDEX -> CategoryType.MATCHA
-                        NON_COFFEE_INDEX -> CategoryType.NON_COFFEE
-                        SIGNATURE_INDEX -> CategoryType.SIGNATURE
-                        else -> throw IllegalArgumentException()
-                    }
-                ))
+            tabs = CategoryType.entries.map { it.russianName },
+            selectedIndex = CategoryType.entries.indexOf(uiState.value.selectedCategoryType),
+            onTabSelected = { index ->
+                viewModel.reduce(
+                    event = MyCatalogEvent.ChangeCategoryType(
+                        categoryType = CategoryType.entries[index]
+                    )
+                )
             },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -154,15 +171,21 @@ private fun MyCatalogScreenSuccessColumnContent(
             .fillMaxSize()
             .navigationBarsPadding(),
     ) {
-        items(uiState.value.products, key = { it.productId }) { product ->
+        items(uiState.value.products, key = { it.productId.value }) { product ->
             ProductCard(
                 name = product.productName.value,
-                price = product.prices.values.max().toString(),
+                price = try {
+                    product.prices.values.max().display()
+                } catch (_: Throwable) {
+                    "EMPTY PRICE"
+                },
                 imageUrl = product.imageUrl,
+                isFavourite = product.productId in uiState.value.favouriteProductIds,
+                onFavouriteToggle = {
+                    viewModel.reduce(MyCatalogEvent.ToggleProductFavorite(product.productId))
+                },
                 onClick = {
-                    viewModel.reduce(event = MyCatalogEvent.GetProductDetail(
-                        productId = product.productId
-                    ))
+                    viewModel.reduce(MyCatalogEvent.GetProductDetail(product.productId))
                 },
             )
         }
@@ -189,17 +212,79 @@ private fun MyCatalogScreenSuccessGridContent(
             .fillMaxSize()
             .navigationBarsPadding(),
     ) {
-        items(uiState.value.products, key = { it.productId }) { product ->
+        items(uiState.value.products, key = { it.productId.value }) { product ->
             ProductCard(
                 name = product.productName.value,
-                price = product.prices.values.max().toString(),
+                price = try {
+                    product.prices.values.max().display()
+                } catch (_: Throwable) {
+                    "EMPTY PRICE"
+                },
                 imageUrl = product.imageUrl,
+                isFavourite = product.productId in uiState.value.favouriteProductIds,
+                onFavouriteToggle = {
+                    viewModel.reduce(MyCatalogEvent.ToggleProductFavorite(product.productId))
+                },
                 onClick = {
-                    viewModel.reduce(event = MyCatalogEvent.GetProductDetail(
-                        productId = product.productId
-                    ))
+                    viewModel.reduce(MyCatalogEvent.GetProductDetail(product.productId))
                 },
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProductDetailBottomSheetWrapper(viewModel: MyCatalogViewModel) {
+    val model = viewModel.uiState.collectAsState().value
+    val product = model.selectedProduct ?: return
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val volumes = product.availableSizes.sortedBy { it.ml }.map { it.displayName() }
+    val selectedVolumeStr = model.selectedVolume?.displayName()
+
+    val modifierGroups = product.compatibleModifiers
+        .groupBy { it.category }
+        .map { (category, modifiers) ->
+            ModifierGroup(
+                title = category.displayName(),
+                options = modifiers.map { it.additiveName.value },
+                selectedOption = model.selectedModifiers[category]?.additiveName?.value,
+            )
+        }
+
+    val basePrice = model.selectedVolume?.let { product.prices[it] }
+        ?: product.prices.values.minOrNull()
+        ?: Price(0, 0)
+    val modifiersTotal = model.selectedModifiers.values
+        .fold(Price(0, 0)) { acc, m -> acc + m.price }
+    val totalPrice = (basePrice + modifiersTotal) * model.quantity
+
+    ProductDetailBottomSheet(
+        state = ProductDetailState(
+            name = product.productName.value,
+            imageUrl = product.imageUrl,
+            volumes = volumes,
+            selectedVolume = selectedVolumeStr,
+            modifierGroups = modifierGroups,
+            quantity = model.quantity,
+            comment = model.comment,
+            totalPrice = totalPrice.display(),
+        ),
+        sheetState = sheetState,
+        onDismiss = { viewModel.reduce(MyCatalogEvent.DismissProductDetail) },
+        onVolumeSelected = { volumeStr ->
+            val size = Size.entries.find { it.displayName() == volumeStr }
+            size?.let { viewModel.reduce(MyCatalogEvent.SelectVolume(it)) }
+        },
+        onModifierSelected = { _, optionName ->
+            val modifier = product.compatibleModifiers.find { it.additiveName.value == optionName }
+            modifier?.let { viewModel.reduce(MyCatalogEvent.SelectModifier(it)) }
+        },
+        onQuantityDecrement = { viewModel.reduce(MyCatalogEvent.DecrementQuantity) },
+        onQuantityIncrement = { viewModel.reduce(MyCatalogEvent.IncrementQuantity) },
+        onCommentChange = { viewModel.reduce(MyCatalogEvent.CommentChanged(it)) },
+        onAddToCart = { /* TODO: подключить к feature:cart */ },
+    )
 }
