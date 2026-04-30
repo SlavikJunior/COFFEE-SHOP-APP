@@ -18,3 +18,12 @@ fun <T> Flow<T>.asResult(): Flow<Result<T>> = map<T, Result<T>> { Result.Success
 fun <T> T.asSuccessResult(): Result<T> = Result.Success(this)
 
 fun <T : Throwable> T.asErrorResult(): Result<Nothing> = Result.Error(this)
+
+fun Result<*>?.isSuccess(): Boolean {
+    if (this == null) return false
+
+    return when (this) {
+        is Result.Success<*> -> true
+        else -> false
+    }
+}

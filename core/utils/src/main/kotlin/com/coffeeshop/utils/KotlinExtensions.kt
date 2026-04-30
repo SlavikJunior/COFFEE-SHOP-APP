@@ -26,8 +26,20 @@ inline fun <reified K, T> Iterable<T>.groupBy(): Map<K, List<T>> {
         // computed Kotlin properties don't have backing fields — search getter methods
         val getter = clazz.declaredMethods.firstOrNull {
             it.returnType == K::class.java && it.parameterCount == 0
-        } ?: error("No field or getter of type '${K::class.simpleName}' found in '${clazz.simpleName}'")
+        }
+            ?: error("No field or getter of type '${K::class.simpleName}' found in '${clazz.simpleName}'")
         getter.isAccessible = true
         getter.invoke(element) as K
     }
+}
+
+inline fun <T> Iterable<T>.findOrThrow(message: String? = null, predicate: (T) -> Boolean): T {
+    val res = this.find(predicate = predicate)
+    res?.let { return res }
+
+    message?.let {
+        return requireNotNull(res) { message }
+    }
+
+    return requireNotNull(res)
 }

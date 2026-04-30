@@ -5,3 +5,5 @@ enum class Size(val ml: Int) {
     MEDIUM(350),
     LARGE(450),
 }
+
+fun Size.display(): String = "$ml мл"

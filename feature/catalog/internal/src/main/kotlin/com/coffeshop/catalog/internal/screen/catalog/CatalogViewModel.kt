@@ -174,8 +174,8 @@ internal class MyCatalogViewModel
 
     private fun onSelectModifier(event: MyCatalogEvent.SelectModifier) {
         _uiState.update { state ->
-            val current = state.selectedModifiers[event.modifier.category]
-            val newModifiers = if (current?.additiveId == event.modifier.additiveId) {
+            val current: Modifier? = state.selectedModifiers[event.modifier.category]
+            val newModifiers: Map<ModifierCategory, Modifier> = if (current?.additiveId == event.modifier.additiveId) {
                 state.selectedModifiers - event.modifier.category
             } else {
                 state.selectedModifiers + (event.modifier.category to event.modifier)

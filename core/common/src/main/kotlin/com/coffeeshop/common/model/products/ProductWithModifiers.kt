@@ -17,3 +17,15 @@ data class ProductWithModifiers(
     val isAvailable: Boolean,
     val compatibleModifiers: List<Modifier>,
 )
+
+fun ProductWithModifiers.toProduct(): Product =
+    Product(
+        productId = productId,
+        productName = productName,
+        description = description,
+        category = category,
+        prices = prices,
+        availableSizes = availableSizes,
+        imageUrl = imageUrl,
+        isAvailable = isAvailable
+    )

@@ -27,8 +27,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.coffeeshop.common.model.products.CategoryType
 import com.coffeeshop.common.model.products.ModifierCategory
 import com.coffeeshop.common.model.products.Product
+import com.coffeeshop.common.model.products.display
 import com.coffeeshop.common.model.support.Price
 import com.coffeeshop.common.model.support.Size
+import com.coffeeshop.common.model.support.display
 import com.coffeeshop.designsystem.components.CategoryTabRow
 import com.coffeeshop.designsystem.components.HomeTopBar
 import com.coffeeshop.designsystem.components.LoadingOverlay
@@ -37,21 +39,6 @@ import com.coffeeshop.designsystem.components.ProductCard
 import com.coffeeshop.designsystem.components.ProductDetailBottomSheet
 import com.coffeeshop.designsystem.components.ProductDetailState
 import com.coffeeshop.designsystem.components.RetryOverlay
-
-private fun Price.display(): String = buildString {
-    append(firstPart)
-    if (secondPart > 0) append(",${secondPart.toString().padStart(2, '0')}")
-    append(" ₽")
-}
-
-private fun ModifierCategory.displayName(): String = when (this) {
-    ModifierCategory.SYRUP -> "Сироп"
-    ModifierCategory.MARSHMALLOW -> "Маршмэллоу"
-    ModifierCategory.ALT_MILK -> "Альтернативное молоко"
-    ModifierCategory.VITAMIN_SHOT -> "Витаминный шот"
-}
-
-private fun Size.displayName(): String = "$ml мл"
 
 @Composable
 fun MyCatalogScreen(
@@ -241,14 +228,14 @@ private fun ProductDetailBottomSheetWrapper(viewModel: MyCatalogViewModel) {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val volumes = product.availableSizes.sortedBy { it.ml }.map { it.displayName() }
-    val selectedVolumeStr = model.selectedVolume?.displayName()
+    val volumes = product.availableSizes.sortedBy { it.ml }.map { it.display() }
+    val selectedVolumeStr = model.selectedVolume?.display()
 
     val modifierGroups = product.compatibleModifiers
         .groupBy { it.category }
         .map { (category, modifiers) ->
             ModifierGroup(
-                title = category.displayName(),
+                title = category.display(),
                 options = modifiers.map { it.additiveName.value },
                 selectedOption = model.selectedModifiers[category]?.additiveName?.value,
             )
@@ -275,7 +262,7 @@ private fun ProductDetailBottomSheetWrapper(viewModel: MyCatalogViewModel) {
         sheetState = sheetState,
         onDismiss = { viewModel.reduce(MyCatalogEvent.DismissProductDetail) },
         onVolumeSelected = { volumeStr ->
-            val size = Size.entries.find { it.displayName() == volumeStr }
+            val size = Size.entries.find { it.display() == volumeStr }
             size?.let { viewModel.reduce(MyCatalogEvent.SelectVolume(it)) }
         },
         onModifierSelected = { _, optionName ->
