@@ -21,7 +21,7 @@ class TokenAuthenticator
 @Inject constructor(
     private val tokenRepository: Lazy<TokenRepository>,
     private val tokenStorage: TokenStorage,
-    @DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : Authenticator {
 
     private val mutex = Mutex()

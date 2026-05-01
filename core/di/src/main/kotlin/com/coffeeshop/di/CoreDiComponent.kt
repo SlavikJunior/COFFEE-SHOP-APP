@@ -21,16 +21,4 @@ interface CoreDiComponent {
 
     @get:DispatcherUnconfined
     val dispatcherUnconfined: CoroutineDispatcher
-
-    companion object {
-        fun get(): CoreDiComponent = object : CoreDiComponent {
-            override val dispatcherIO: CoroutineDispatcher
-                get() = Dispatchers.IO
-            override val dispatcherDefault: CoroutineDispatcher
-                get() = Dispatchers.Default
-            override val dispatcherUnconfined: CoroutineDispatcher
-                get() = Dispatchers.Unconfined
-
-        }
-    }
 }

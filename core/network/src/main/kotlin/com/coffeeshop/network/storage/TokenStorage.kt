@@ -15,7 +15,7 @@ import javax.inject.Inject
 class TokenStorage
 @Inject constructor(
     @ApplicationContext context: Context,
-    @DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     private val prefs: SharedPreferences = EncryptedSharedPreferences.create(

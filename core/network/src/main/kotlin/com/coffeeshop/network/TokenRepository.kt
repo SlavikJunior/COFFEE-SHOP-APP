@@ -15,7 +15,7 @@ class TokenRepository
 @Inject constructor(
     private val service: TokenService,
     private val tokenStorage: TokenStorage,
-    @DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     suspend fun updateToken(): Result<String> {

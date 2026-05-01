@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -33,8 +34,10 @@ android {
 }
 
 dependencies {
-    implementation(libs.navigation3.runtime)
-    implementation(libs.navigation3.ui)
+    implementation(libs.dagger.core)
+    ksp(libs.dagger.compiler)
+
+    implementation(libs.bundles.nav3)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

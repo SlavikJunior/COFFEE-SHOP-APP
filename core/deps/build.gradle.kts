@@ -36,6 +36,9 @@ android {
 dependencies {
     implementation(project(path = ":core:build-config:api"))
     implementation(project(path = ":core:build-config:internal"))
+    implementation(project(path = ":core:navigation"))
+
+    implementation(libs.bundles.nav3)
 
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)
