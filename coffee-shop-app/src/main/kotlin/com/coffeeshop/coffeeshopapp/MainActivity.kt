@@ -13,6 +13,7 @@ import com.arttttt.nav3router.Nav3Host
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.internal.navigation.loginScreenEntry
 import com.coffeeshop.auth.internal.navigation.registerScreenEntry
+import com.coffeeshop.product_detail.internal.navigation.productDetailScreenEntry
 import com.coffeeshop.profile.internal.navigation.profileScreenEntry
 import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
 import com.coffeshop.catalog.internal.navigation.catalogScreenEntry
@@ -28,7 +29,11 @@ class MainActivity : ComponentActivity() {
         coffeeShopAppComponent().inject(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val viewModelFactory = featureCatalogComponent().viewModelFactory
+
+        val catalogViewModelFactory = featureCatalogComponent().viewModelFactory
+        val profileViewModelFactory = featureProfileComponent().viewModelFactory
+        val productDetailViewModelFactory = featureProductDetail().viewModelFactory
+
         setContent {
             val backStack = rememberNavBackStack(CatalogRoute())
             Nav3Host(
@@ -41,8 +46,9 @@ class MainActivity : ComponentActivity() {
                     entryProvider = entryProvider {
                         loginScreenEntry(router)
                         registerScreenEntry(router)
-                        catalogScreenEntry(router, viewModelFactory)
-                        profileScreenEntry(router)
+                        catalogScreenEntry(catalogViewModelFactory)
+                        profileScreenEntry(router, profileViewModelFactory)
+                        productDetailScreenEntry(productDetailViewModelFactory)
                     }
                 )
             }

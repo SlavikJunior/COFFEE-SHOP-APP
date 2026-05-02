@@ -51,3 +51,7 @@ include(":feature:catalog:internal")
 
 include(":feature:profile:api")
 include(":feature:profile:internal")
+
+include(":feature:product-detail:api")
+include(":feature:product-detail:internal")
+include(":core:cache:api")

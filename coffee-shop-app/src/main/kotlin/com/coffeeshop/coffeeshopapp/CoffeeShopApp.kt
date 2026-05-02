@@ -2,46 +2,99 @@ package com.coffeeshop.coffeeshopapp
 
 import android.app.Application
 import android.content.Context
+import com.coffeeshop.auth.internal.di.DaggerFeatureAuthComponent
+import com.coffeeshop.auth.internal.di.FeatureAuthComponent
+import com.coffeeshop.database.di.DaggerDatabaseComponent
+import com.coffeeshop.database.di.DatabaseComponent
 import com.coffeeshop.di.CoreDiComponent
-import com.coffeeshop.json.DaggerJsonComponent
+import com.coffeeshop.di.DaggerCoreDiComponent
 import com.coffeeshop.json.JsonComponent
 import com.coffeeshop.network.di.DaggerNetworkComponent
+import com.coffeeshop.network.di.NetworkComponent
+import com.coffeeshop.product_detail.internal.di.DaggerFeatureProductDetailComponent
+import com.coffeeshop.product_detail.internal.di.FeatureProductDetailComponent
+import com.coffeeshop.profile.internal.di.DaggerFeatureProfileComponent
+import com.coffeeshop.profile.internal.di.FeatureProfileComponent
 import com.coffeshop.catalog.internal.di.DaggerFeatureCatalogComponent
 import com.coffeshop.catalog.internal.di.FeatureCatalogComponent
 import com.coffeshop.deps.AppDeps
+import com.coffeshop.navigation.di.CoreNavigationComponent
+import com.coffeshop.navigation.di.DaggerCoreNavigationComponent
 
 class CoffeeShopApp : Application() {
 
+    private val appDeps by lazy { AppDeps.create() }
+
+
+    internal lateinit var jsonComponent: JsonComponent
+    internal lateinit var coreDiComponent: CoreDiComponent
+    internal lateinit var coreNavigationComponent: CoreNavigationComponent
+    internal lateinit var databaseComponent: DatabaseComponent
+    internal lateinit var networkComponent: NetworkComponent
+
+
     internal lateinit var coffeeShopAppComponent: CoffeeShopAppComponent
 
-//    internal lateinit var featureAuthComponent: FeatureAuthComponent
 
+    internal lateinit var featureAuthComponent: FeatureAuthComponent
     internal lateinit var featureCatalogComponent: FeatureCatalogComponent
+    internal lateinit var featureProfileComponent: FeatureProfileComponent
+    internal lateinit var featureProductDetailComponent: FeatureProductDetailComponent
+
 
     override fun onCreate() {
         super.onCreate()
 
-        val appDeps = AppDeps.create()
-//        val authDeps = FeatureAuthDeps.create()
+        jsonComponent = JsonComponent.get
 
-        val networkComponent = DaggerNetworkComponent.builder()
+        coreDiComponent = DaggerCoreDiComponent.create()
+
+        coreNavigationComponent = appDeps.coreNavigationComponent
+
+        databaseComponent = DaggerDatabaseComponent.builder()
+            .applicationContext(this)
+            .coreDiComponent(coreDiComponent)
+            .jsonComponent(jsonComponent)
+            .build()
+
+        networkComponent = DaggerNetworkComponent.builder()
             .applicationContext(this)
             .buildConfigProvider(appDeps.buildConfigProvider)
-            .coreDiComponent(CoreDiComponent.get())
-            .jsonComponent(JsonComponent.get)
+            .coreDiComponent(coreDiComponent)
+            .jsonComponent(jsonComponent)
             .build()
+
 
         coffeeShopAppComponent = DaggerCoffeeShopAppComponent.builder()
             .applicationContext(this)
             .appDeps(appDeps)
             .build()
 
-//        featureAuthComponent = DaggerFeatureAuthComponent.factory().create(authDeps)
+
+        featureAuthComponent = DaggerFeatureAuthComponent.builder()
+            .retrofit(networkComponent.retrofit)
+            .dispatcherIo(coreDiComponent.dispatcherIO)
+            .router(coreNavigationComponent.router())
+            .build()
 
         featureCatalogComponent = DaggerFeatureCatalogComponent.builder()
-            .okHttpClient(networkComponent.okHttpClient)
+            .jsonComponent(jsonComponent)
+            .networkComponent(networkComponent)
+            .databaseComponent(databaseComponent)
+            .coreDiComponent(coreDiComponent)
+            .router(coreNavigationComponent.router())
+            .build()
+
+        featureProfileComponent = DaggerFeatureProfileComponent.builder()
+            .applicationContext(this)
             .retrofit(networkComponent.retrofit)
-            .buildConfigProvider(appDeps.buildConfigProvider)
+            .dispatcherIo(coreDiComponent.dispatcherIO)
+            .router(coreNavigationComponent.router())
+            .build()
+
+        featureProductDetailComponent = DaggerFeatureProductDetailComponent.builder()
+            .coreDiComponent(coreDiComponent)
+            .router(coreNavigationComponent.router())
             .build()
     }
 }
@@ -57,5 +110,26 @@ fun Context.featureCatalogComponent(): FeatureCatalogComponent {
     return when (this) {
         is CoffeeShopApp -> featureCatalogComponent
         else -> applicationContext.featureCatalogComponent()
+    }
+}
+
+fun Context.featureAuthComponent(): FeatureAuthComponent {
+    return when(this) {
+        is CoffeeShopApp -> featureAuthComponent
+        else -> applicationContext.featureAuthComponent()
+    }
+}
+
+fun Context.featureProfileComponent(): FeatureProfileComponent {
+    return when(this) {
+        is CoffeeShopApp -> featureProfileComponent
+        else -> applicationContext.featureProfileComponent()
+    }
+}
+
+fun Context.featureProductDetail(): FeatureProductDetailComponent {
+    return when(this) {
+        is CoffeeShopApp -> featureProductDetailComponent
+        else -> applicationContext.featureProductDetail()
     }
 }

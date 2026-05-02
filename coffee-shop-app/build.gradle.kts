@@ -49,6 +49,7 @@ dependencies {
     implementation(project(path = ":core:di"))
     implementation(project(path = ":core:json"))
     implementation(project(path = ":core:network"))
+    implementation(project(path = ":core:database"))
     implementation(project(path = ":core:build-config:api"))
     implementation(project(path = ":core:build-config:internal"))
 
@@ -59,6 +60,8 @@ dependencies {
     implementation(project(path = ":feature:catalog:internal"))
     implementation(project(path = ":feature:profile:api"))
     implementation(project(path = ":feature:profile:internal"))
+    implementation(project(path = ":feature:product-detail:api"))
+    implementation(project(path = ":feature:product-detail:internal"))
 
     // nav deps
     implementation(project(path = ":core:navigation"))

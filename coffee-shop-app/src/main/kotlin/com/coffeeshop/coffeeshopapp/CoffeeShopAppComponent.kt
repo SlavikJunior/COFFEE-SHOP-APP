@@ -9,7 +9,6 @@ import javax.inject.Singleton
 
 @CoffeeShopAppScope
 @Component(
-    modules = [AppNavigationModule::class],
     dependencies = [AppDeps::class]
 )
 interface CoffeeShopAppComponent {
@@ -20,8 +19,7 @@ interface CoffeeShopAppComponent {
     @Component.Builder
     interface Builder {
 
-        @BindsInstance
-        @ApplicationContext
+        @[BindsInstance ApplicationContext]
         fun applicationContext(applicationContext: Context): Builder
 
         fun appDeps(appDeps: AppDeps): Builder
