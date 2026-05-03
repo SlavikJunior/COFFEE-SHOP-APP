@@ -32,11 +32,9 @@ internal interface FeatureAuthBindingModule {
     @Binds
     fun bindAuthRepository(target: AuthRepositoryImpl): AuthRepository
 
-    @Binds
-    @[IntoMap ViewModelKey(RegisterViewModel::class)]
+    @[Binds IntoMap ViewModelKey(RegisterViewModel::class)]
     fun bindRegisterViewModel(factory: RegisterViewModel.Factory): SavedStateHandleFactory<out ViewModel>
 
-    @Binds
-    @[IntoMap ViewModelKey(LoginViewModel::class)]
+    @[Binds IntoMap ViewModelKey(LoginViewModel::class)]
     fun bindLoginViewModel(factory: LoginViewModel.Factory): SavedStateHandleFactory<out ViewModel>
 }

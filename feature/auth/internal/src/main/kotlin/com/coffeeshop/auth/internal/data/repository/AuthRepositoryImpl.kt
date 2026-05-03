@@ -11,6 +11,7 @@ import com.coffeeshop.common.result.Result
 import com.coffeeshop.contracts.RegisterRequest
 import com.coffeeshop.contracts.SendSmsRequest
 import com.coffeeshop.contracts.VerifyOtpRequest
+import com.coffeeshop.di.qualifiers.DispatcherIO
 import com.coffeeshop.network.storage.TokenStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ class AuthRepositoryImpl
 @Inject constructor(
     private val service: AuthService,
     private val tokenStorage: TokenStorage,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : AuthRepository {
 
     override suspend fun sendSms(phoneNumber: PhoneNumberModel): Result<AuthStatus> =
