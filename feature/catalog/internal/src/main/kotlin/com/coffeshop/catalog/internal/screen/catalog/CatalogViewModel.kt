@@ -3,18 +3,19 @@ package com.coffeshop.catalog.internal.screen.catalog
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arttttt.nav3router.Router
 import com.coffeeshop.common.model.products.CategoryType
-import com.coffeeshop.common.model.products.Modifier
-import com.coffeeshop.common.model.products.ModifierCategory
 import com.coffeeshop.common.model.products.Product
 import com.coffeeshop.common.model.products.ProductWithModifiers
 import com.coffeeshop.common.model.support.ID
-import com.coffeeshop.common.model.support.Size
 import com.coffeeshop.common.result.Result
 import com.coffeeshop.common.result.asErrorResult
+import com.coffeeshop.product_detail.api.presentation.navigation.ProductDetailRoute
+import com.coffeeshop.profile.api.presentation.navigation.ProfileRoute
 import com.coffeeshop.utils.groupBy
 import com.coffeshop.catalog.api.domain.usecase.GetFullMenuUseCase
 import com.coffeshop.catalog.api.domain.usecase.GetProductDetailByProductIdUseCase
+import com.coffeshop.navigation.Route
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,62 +24,47 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-internal sealed interface MyCatalogUiState {
+internal sealed interface CatalogUiStateStatus {
 
-    data object Loading : MyCatalogUiState
+    data object Loading : CatalogUiStateStatus
 
-    data object Success : MyCatalogUiState
+    data object Success : CatalogUiStateStatus
 
-    data class Error(val cause: Throwable) : MyCatalogUiState
-
-    data class ShowingProductDetail(val product: ProductWithModifiers) : MyCatalogUiState
+    data class Error(val cause: Throwable) : CatalogUiStateStatus
 }
 
 @Stable
-internal data class MyCatalogModel(
+internal data class CatalogUiState(
     val products: List<Product> = emptyList(),
-    val state: MyCatalogUiState = MyCatalogUiState.Loading,
+    val state: CatalogUiStateStatus = CatalogUiStateStatus.Loading,
     val selectedCategoryType: CategoryType = CategoryType.COFFEE,
     val selectedProduct: ProductWithModifiers? = null,
-    val selectedVolume: Size? = null,
-    val selectedModifiers: Map<ModifierCategory, Modifier> = emptyMap(),
-    val quantity: Int = 1,
-    val comment: String = "",
     val favouriteProductIds: Set<ID> = emptySet(),
 )
 
-internal sealed interface MyCatalogEvent {
+internal sealed interface CatalogUiStateEvent {
 
-    data object RetryAfterErrorClicked : MyCatalogEvent
+    data object RetryAfterErrorClicked : CatalogUiStateEvent
 
-    data object LoadProductsForCurrentCategoryType : MyCatalogEvent
+    data object LoadProductsForCurrentCategoryType : CatalogUiStateEvent
 
-    data class ChangeCategoryType(val categoryType: CategoryType) : MyCatalogEvent
+    data class ChangeCategoryType(val categoryType: CategoryType) : CatalogUiStateEvent
 
-    data class ToggleProductFavorite(val productId: ID) : MyCatalogEvent
+    data class ToggleProductFavorite(val productId: ID) : CatalogUiStateEvent
 
-    data class GetProductDetail(val productId: ID) : MyCatalogEvent
+    data class GetProductDetail(val productId: ID) : CatalogUiStateEvent
 
-    data object DismissProductDetail : MyCatalogEvent
-
-    data class SelectVolume(val size: Size) : MyCatalogEvent
-
-    data class SelectModifier(val modifier: Modifier) : MyCatalogEvent
-
-    data object IncrementQuantity : MyCatalogEvent
-
-    data object DecrementQuantity : MyCatalogEvent
-
-    data class CommentChanged(val comment: String) : MyCatalogEvent
+    data object ProfileClicked : CatalogUiStateEvent
 }
 
-internal class MyCatalogViewModel
+internal class CatalogViewModel
 @Inject constructor(
     private val getFullMenu: GetFullMenuUseCase,
-    private val getProductDetailByProductId: GetProductDetailByProductIdUseCase
+    private val getProductDetailByProductId: GetProductDetailByProductIdUseCase,
+    private val router: Router<Route>
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(MyCatalogModel())
+    private val _uiState = MutableStateFlow(CatalogUiState())
     val uiState = _uiState.asStateFlow()
 
     private var products: List<Product>? = null
@@ -90,27 +76,26 @@ internal class MyCatalogViewModel
         initData()
     }
 
-    fun reduce(event: MyCatalogEvent) {
+    fun reduce(event: CatalogUiStateEvent) {
         when (event) {
-            MyCatalogEvent.RetryAfterErrorClicked -> onRetryAfterErrorClicked()
-            MyCatalogEvent.LoadProductsForCurrentCategoryType -> onLoadProductsForCurrentCategoryType()
-            is MyCatalogEvent.ChangeCategoryType -> {
+            CatalogUiStateEvent.RetryAfterErrorClicked -> onRetryAfterErrorClicked()
+            CatalogUiStateEvent.LoadProductsForCurrentCategoryType -> onLoadProductsForCurrentCategoryType()
+            is CatalogUiStateEvent.ChangeCategoryType -> {
                 onChangeCategoryType(event)
                 onLoadProductsForCurrentCategoryType()
             }
-            is MyCatalogEvent.GetProductDetail -> onGetProductDetail(event)
-            is MyCatalogEvent.ToggleProductFavorite -> onToggleProductFavorite(event)
-            MyCatalogEvent.DismissProductDetail -> onDismissProductDetail()
-            is MyCatalogEvent.SelectVolume -> onSelectVolume(event)
-            is MyCatalogEvent.SelectModifier -> onSelectModifier(event)
-            MyCatalogEvent.IncrementQuantity -> onIncrementQuantity()
-            MyCatalogEvent.DecrementQuantity -> onDecrementQuantity()
-            is MyCatalogEvent.CommentChanged -> onCommentChanged(event)
+            is CatalogUiStateEvent.GetProductDetail -> onGetProductDetail(event)
+            is CatalogUiStateEvent.ToggleProductFavorite -> onToggleProductFavorite(event)
+            CatalogUiStateEvent.ProfileClicked -> onProfileClicked()
         }
     }
 
+    private fun onProfileClicked() {
+        router.push(ProfileRoute())
+    }
+
     private fun onRetryAfterErrorClicked() {
-        _uiState.update { it.copy(state = MyCatalogUiState.Loading) }
+        _uiState.update { it.copy(state = CatalogUiStateStatus.Loading) }
         initData()
     }
 
@@ -123,11 +108,11 @@ internal class MyCatalogViewModel
         }
     }
 
-    private fun onChangeCategoryType(event: MyCatalogEvent.ChangeCategoryType) {
+    private fun onChangeCategoryType(event: CatalogUiStateEvent.ChangeCategoryType) {
         _uiState.update { it.copy(selectedCategoryType = event.categoryType) }
     }
 
-    private fun onGetProductDetail(event: MyCatalogEvent.GetProductDetail) {
+    private fun onGetProductDetail(event: CatalogUiStateEvent.GetProductDetail) {
         searchJob = viewModelScope.launch {
             val result: Result<ProductWithModifiers> =
                 try {
@@ -138,65 +123,18 @@ internal class MyCatalogViewModel
             when (result) {
                 is Result.Success<ProductWithModifiers> -> {
                     val product = result.data
-                    _uiState.update {
-                        it.copy(
-                            state = MyCatalogUiState.ShowingProductDetail(product),
-                            selectedProduct = product,
-                            selectedVolume = product.availableSizes.firstOrNull(),
-                            selectedModifiers = emptyMap(),
-                            quantity = 1,
-                            comment = "",
-                        )
-                    }
+
+                    router.push(ProductDetailRoute(
+                        productID = product.productId
+                    ))
                 }
-                is Result.Error -> _uiState.update { it.copy(state = MyCatalogUiState.Error(result.exception)) }
+                is Result.Error -> _uiState.update { it.copy(state = CatalogUiStateStatus.Error(result.exception)) }
                 else -> throw IllegalArgumentException("Illegal product detail result: $result")
             }
         }
     }
 
-    private fun onDismissProductDetail() {
-        _uiState.update {
-            it.copy(
-                state = MyCatalogUiState.Success,
-                selectedProduct = null,
-                selectedVolume = null,
-                selectedModifiers = emptyMap(),
-                quantity = 1,
-                comment = "",
-            )
-        }
-    }
-
-    private fun onSelectVolume(event: MyCatalogEvent.SelectVolume) {
-        _uiState.update { it.copy(selectedVolume = event.size) }
-    }
-
-    private fun onSelectModifier(event: MyCatalogEvent.SelectModifier) {
-        _uiState.update { state ->
-            val current: Modifier? = state.selectedModifiers[event.modifier.category]
-            val newModifiers: Map<ModifierCategory, Modifier> = if (current?.additiveId == event.modifier.additiveId) {
-                state.selectedModifiers - event.modifier.category
-            } else {
-                state.selectedModifiers + (event.modifier.category to event.modifier)
-            }
-            state.copy(selectedModifiers = newModifiers)
-        }
-    }
-
-    private fun onIncrementQuantity() {
-        _uiState.update { it.copy(quantity = it.quantity + 1) }
-    }
-
-    private fun onDecrementQuantity() {
-        _uiState.update { it.copy(quantity = maxOf(1, it.quantity - 1)) }
-    }
-
-    private fun onCommentChanged(event: MyCatalogEvent.CommentChanged) {
-        _uiState.update { it.copy(comment = event.comment) }
-    }
-
-    private fun onToggleProductFavorite(event: MyCatalogEvent.ToggleProductFavorite) {
+    private fun onToggleProductFavorite(event: CatalogUiStateEvent.ToggleProductFavorite) {
         _uiState.update { state ->
             val ids = state.favouriteProductIds
             state.copy(
@@ -209,11 +147,11 @@ internal class MyCatalogViewModel
         searchJob = viewModelScope.launch {
             when (val result = getFullMenu()) {
                 Result.Loading -> {
-                    _uiState.update { it.copy(state = MyCatalogUiState.Loading) }
+                    _uiState.update { it.copy(state = CatalogUiStateStatus.Loading) }
                 }
 
                 is Result.Error -> {
-                    _uiState.update { it.copy(state = MyCatalogUiState.Error(cause = result.exception)) }
+                    _uiState.update { it.copy(state = CatalogUiStateStatus.Error(cause = result.exception)) }
                 }
 
                 is Result.Success<*> -> {
@@ -226,7 +164,7 @@ internal class MyCatalogViewModel
                     onLoadProductsForCurrentCategoryType()
                     products = null
 
-                    _uiState.update { it.copy(state = MyCatalogUiState.Success) }
+                    _uiState.update { it.copy(state = CatalogUiStateStatus.Success) }
                 }
             }
         }

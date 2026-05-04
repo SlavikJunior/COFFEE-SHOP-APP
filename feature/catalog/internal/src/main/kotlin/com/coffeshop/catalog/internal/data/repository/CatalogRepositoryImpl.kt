@@ -9,6 +9,7 @@ import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.common.result.Result
 import com.coffeeshop.common.result.asErrorResult
 import com.coffeeshop.common.result.asSuccessResult
+import com.coffeeshop.di.qualifiers.DispatcherIO
 import com.coffeshop.catalog.api.domain.repository.CatalogRepository
 import com.coffeshop.catalog.internal.data.mapper.toDomain
 import com.coffeshop.catalog.internal.data.service.CatalogService
@@ -20,7 +21,7 @@ import javax.inject.Inject
 internal class CatalogRepositoryImpl
 @Inject constructor(
     private val service: CatalogService,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : CatalogRepository {
 
     override suspend fun getFullMenu(): Result<List<Product>> = withContext(dispatcher) {

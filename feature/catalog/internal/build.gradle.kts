@@ -39,14 +39,19 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:design-system"))
+    implementation(project(":core:navigation"))
+    implementation(project(":core:common"))
     implementation(project(":core:utils"))
     implementation(project(":core:network"))
-    implementation(project(":core:common"))
+    implementation(project(":core:database"))
+    implementation(project(":core:json"))
     implementation(project(":core:di"))
-    implementation(project(":core:design-system"))
     implementation(project(":core:build-config:api"))
+
     implementation(project(":feature:catalog:api"))
     implementation(project(":feature:profile:api"))
+    implementation(project(":feature:product-detail:api"))
 
     // DI
     implementation(libs.dagger.core)

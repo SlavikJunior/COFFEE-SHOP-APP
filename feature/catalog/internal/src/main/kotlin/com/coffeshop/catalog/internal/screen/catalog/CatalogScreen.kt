@@ -13,9 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -25,91 +23,66 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.coffeeshop.common.model.products.CategoryType
-import com.coffeeshop.common.model.products.ModifierCategory
-import com.coffeeshop.common.model.products.Product
-import com.coffeeshop.common.model.products.display
-import com.coffeeshop.common.model.support.Price
-import com.coffeeshop.common.model.support.Size
-import com.coffeeshop.common.model.support.display
 import com.coffeeshop.designsystem.components.CategoryTabRow
 import com.coffeeshop.designsystem.components.HomeTopBar
 import com.coffeeshop.designsystem.components.LoadingOverlay
-import com.coffeeshop.designsystem.components.ModifierGroup
 import com.coffeeshop.designsystem.components.ProductCard
-import com.coffeeshop.designsystem.components.ProductDetailBottomSheet
-import com.coffeeshop.designsystem.components.ProductDetailState
 import com.coffeeshop.designsystem.components.RetryOverlay
 
 @Composable
-fun MyCatalogScreen(
-    onError: () -> Unit,
-    onProfileClick: () -> Unit,
+fun CatalogScreen(
     viewModelFactory: ViewModelProvider.Factory,
-) = MyCatalogScreenInternal(
-    onError = onError,
-    onProfileClick = onProfileClick,
+) = CatalogScreenInternal(
     viewModelFactory = viewModelFactory,
 )
 
 @Composable
-internal fun MyCatalogScreenInternal(
-    onError: () -> Unit,
-    onProfileClick: () -> Unit,
+internal fun CatalogScreenInternal(
     viewModelFactory: ViewModelProvider.Factory,
-    viewModel: MyCatalogViewModel = viewModel(
-        modelClass = MyCatalogViewModel::class,
+    viewModel: CatalogViewModel = viewModel(
+        modelClass = CatalogViewModel::class,
         factory = viewModelFactory,
     )
 ) {
     Scaffold(
         topBar = {
             HomeTopBar(
-                onProfileClick = onProfileClick,
+                onProfileClick = { viewModel.reduce(CatalogUiStateEvent.ProfileClicked) },
                 modifier = Modifier.statusBarsPadding(),
             )
         }
     ) { paddingValues ->
-        MyCatalogScreenContent(
+        CatalogScreenContent(
             viewModel = viewModel,
-            onError = onError,
             paddingValues = paddingValues
         )
     }
 }
 
 @Composable
-private fun MyCatalogScreenContent(
-    viewModel: MyCatalogViewModel,
-    onError: () -> Unit,
+private fun CatalogScreenContent(
+    viewModel: CatalogViewModel,
     paddingValues: PaddingValues = PaddingValues()
 ) {
-    val uiState: State<MyCatalogModel> = viewModel.uiState.collectAsState()
+    val uiState: State<CatalogUiState> = viewModel.uiState.collectAsState()
     when (uiState.value.state) {
-        MyCatalogUiState.Loading -> LoadingOverlay()
-        is MyCatalogUiState.Error -> RetryOverlay(
+        CatalogUiStateStatus.Loading -> LoadingOverlay()
+        is CatalogUiStateStatus.Error -> RetryOverlay(
             onRetry = {
-                viewModel.reduce(event = MyCatalogEvent.RetryAfterErrorClicked)
+                viewModel.reduce(event = CatalogUiStateEvent.RetryAfterErrorClicked)
             }
         )
 
-        MyCatalogUiState.Success -> MyCatalogScreenSuccessContent(
+        CatalogUiStateStatus.Success -> CatalogScreenSuccessContent(
             viewModel = viewModel,
             paddingValues = paddingValues
         )
-
-        is MyCatalogUiState.ShowingProductDetail -> {
-            MyCatalogScreenSuccessContent(
-                viewModel = viewModel,
-                paddingValues = paddingValues
-            )
-            ProductDetailBottomSheetWrapper(viewModel = viewModel)
-        }
     }
 }
 
 @Composable
-private fun MyCatalogScreenSuccessContent(
-    viewModel: MyCatalogViewModel,
+private fun CatalogScreenSuccessContent(
+    viewModel: CatalogViewModel,
     paddingValues: PaddingValues = PaddingValues()
 ) {
     val uiState = viewModel.uiState.collectAsState()
@@ -124,7 +97,7 @@ private fun MyCatalogScreenSuccessContent(
             selectedIndex = CategoryType.entries.indexOf(uiState.value.selectedCategoryType),
             onTabSelected = { index ->
                 viewModel.reduce(
-                    event = MyCatalogEvent.ChangeCategoryType(
+                    event = CatalogUiStateEvent.ChangeCategoryType(
                         categoryType = CategoryType.entries[index]
                     )
                 )
@@ -133,15 +106,15 @@ private fun MyCatalogScreenSuccessContent(
         )
 
         when (uiState.value.selectedCategoryType) {
-            CategoryType.SIGNATURE -> MyCatalogScreenSuccessColumnContent(viewModel = viewModel)
-            else -> MyCatalogScreenSuccessGridContent(viewModel = viewModel)
+            CategoryType.SIGNATURE -> CatalogScreenSuccessColumnContent(viewModel = viewModel)
+            else -> CatalogScreenSuccessGridContent(viewModel = viewModel)
         }
     }
 }
 
 @Composable
-private fun MyCatalogScreenSuccessColumnContent(
-    viewModel: MyCatalogViewModel
+private fun CatalogScreenSuccessColumnContent(
+    viewModel: CatalogViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState()
 
@@ -169,10 +142,10 @@ private fun MyCatalogScreenSuccessColumnContent(
                 imageUrl = product.imageUrl,
                 isFavourite = product.productId in uiState.value.favouriteProductIds,
                 onFavouriteToggle = {
-                    viewModel.reduce(MyCatalogEvent.ToggleProductFavorite(product.productId))
+                    viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(product.productId))
                 },
                 onClick = {
-                    viewModel.reduce(MyCatalogEvent.GetProductDetail(product.productId))
+                    viewModel.reduce(CatalogUiStateEvent.GetProductDetail(product.productId))
                 },
             )
         }
@@ -180,8 +153,8 @@ private fun MyCatalogScreenSuccessColumnContent(
 }
 
 @Composable
-private fun MyCatalogScreenSuccessGridContent(
-    viewModel: MyCatalogViewModel
+private fun CatalogScreenSuccessGridContent(
+    viewModel: CatalogViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState()
 
@@ -210,68 +183,12 @@ private fun MyCatalogScreenSuccessGridContent(
                 imageUrl = product.imageUrl,
                 isFavourite = product.productId in uiState.value.favouriteProductIds,
                 onFavouriteToggle = {
-                    viewModel.reduce(MyCatalogEvent.ToggleProductFavorite(product.productId))
+                    viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(product.productId))
                 },
                 onClick = {
-                    viewModel.reduce(MyCatalogEvent.GetProductDetail(product.productId))
+                    viewModel.reduce(CatalogUiStateEvent.GetProductDetail(product.productId))
                 },
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ProductDetailBottomSheetWrapper(viewModel: MyCatalogViewModel) {
-    val model = viewModel.uiState.collectAsState().value
-    val product = model.selectedProduct ?: return
-
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    val volumes = product.availableSizes.sortedBy { it.ml }.map { it.display() }
-    val selectedVolumeStr = model.selectedVolume?.display()
-
-    val modifierGroups = product.compatibleModifiers
-        .groupBy { it.category }
-        .map { (category, modifiers) ->
-            ModifierGroup(
-                title = category.display(),
-                options = modifiers.map { it.additiveName.value },
-                selectedOption = model.selectedModifiers[category]?.additiveName?.value,
-            )
-        }
-
-    val basePrice = model.selectedVolume?.let { product.prices[it] }
-        ?: product.prices.values.minOrNull()
-        ?: Price(0, 0)
-    val modifiersTotal = model.selectedModifiers.values
-        .fold(Price(0, 0)) { acc, m -> acc + m.price }
-    val totalPrice = (basePrice + modifiersTotal) * model.quantity
-
-    ProductDetailBottomSheet(
-        state = ProductDetailState(
-            name = product.productName.value,
-            imageUrl = product.imageUrl,
-            volumes = volumes,
-            selectedVolume = selectedVolumeStr,
-            modifierGroups = modifierGroups,
-            quantity = model.quantity,
-            comment = model.comment,
-            totalPrice = totalPrice.display(),
-        ),
-        sheetState = sheetState,
-        onDismiss = { viewModel.reduce(MyCatalogEvent.DismissProductDetail) },
-        onVolumeSelected = { volumeStr ->
-            val size = Size.entries.find { it.display() == volumeStr }
-            size?.let { viewModel.reduce(MyCatalogEvent.SelectVolume(it)) }
-        },
-        onModifierSelected = { _, optionName ->
-            val modifier = product.compatibleModifiers.find { it.additiveName.value == optionName }
-            modifier?.let { viewModel.reduce(MyCatalogEvent.SelectModifier(it)) }
-        },
-        onQuantityDecrement = { viewModel.reduce(MyCatalogEvent.DecrementQuantity) },
-        onQuantityIncrement = { viewModel.reduce(MyCatalogEvent.IncrementQuantity) },
-        onCommentChange = { viewModel.reduce(MyCatalogEvent.CommentChanged(it)) },
-        onAddToCart = { /* TODO: подключить к feature:cart */ },
-    )
 }

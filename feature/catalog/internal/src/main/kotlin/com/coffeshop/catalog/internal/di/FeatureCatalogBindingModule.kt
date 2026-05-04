@@ -14,7 +14,7 @@ import com.coffeshop.catalog.internal.domain.usecase.GetAllModifiersUseCaseImpl
 import com.coffeshop.catalog.internal.domain.usecase.GetFullMenuUseCaseImpl
 import com.coffeshop.catalog.internal.domain.usecase.GetMenuByCategoryTypeUseCaseImpl
 import com.coffeshop.catalog.internal.domain.usecase.GetProductDetailByProductIdUseCaseImpl
-import com.coffeshop.catalog.internal.screen.catalog.MyCatalogViewModel
+import com.coffeshop.catalog.internal.screen.catalog.CatalogViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -37,10 +37,8 @@ internal interface FeatureCatalogBindingModule {
     @Binds
     fun bindGetAllModifiersUseCase(impl: GetAllModifiersUseCaseImpl): GetAllModifiersUseCase
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(MyCatalogViewModel::class)
-    fun provideMyCatalogViewModel(viewModel: MyCatalogViewModel): ViewModel
+    @[Binds IntoMap ViewModelKey(CatalogViewModel::class)]
+    fun provideMyCatalogViewModel(viewModel: CatalogViewModel): ViewModel
 
     @Binds
     fun bindViewModelFactory(f: MultiBindingFactory): ViewModelProvider.Factory
