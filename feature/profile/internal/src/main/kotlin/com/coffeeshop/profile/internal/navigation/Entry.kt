@@ -1,5 +1,6 @@
 package com.coffeeshop.profile.internal.navigation
 
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arttttt.nav3router.Router
@@ -8,7 +9,8 @@ import com.coffeeshop.profile.internal.screen.ProfileScreen
 import com.coffeshop.navigation.Route
 
 fun EntryProviderScope<NavKey>.profileScreenEntry(
-    router: Router<Route>
+    router: Router<Route>,
+    viewModelFactory: ViewModelProvider.Factory,
 ) {
     entry<ProfileRoute> {
         ProfileScreen()

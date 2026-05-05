@@ -40,6 +40,8 @@ android {
 dependencies {
     implementation(project(path = ":feature:profile:api"))
     implementation(project(path = ":core:network"))
+    implementation(project(path = ":core:database"))
+    implementation(project(path = ":core:di"))
 
     implementation(libs.bundles.nav3)
 
