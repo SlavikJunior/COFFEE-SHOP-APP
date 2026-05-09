@@ -36,6 +36,8 @@ dependencies {
     implementation(project(":core:di"))
     implementation(project(":core:design-system"))
     implementation(project(":core:build-config:api"))
+    implementation(project(":core:cache:api"))
+
     implementation(project(":feature:catalog:api"))
     implementation(project(":feature:profile:api"))
     implementation(project(":feature:product-detail:api"))

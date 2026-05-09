@@ -53,19 +53,26 @@ import com.coffeeshop.designsystem.components.OptionSelectorGroup
 
 @Composable
 fun ProductDetailScreen(
+    productId: ID,
     viewModelFactory: ViewModelProvider.Factory,
 ) = ProductDetailScreenInternal(
-    viewModelFactory = viewModelFactory
+    productId = productId,
+    viewModelFactory = viewModelFactory,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProductDetailScreenInternal(
+    productId: ID,
     viewModelFactory: ViewModelProvider.Factory,
 ) {
     val viewModel = viewModel<ProductDetailViewModel>(factory = viewModelFactory)
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    LaunchedEffect(productId) {
+        viewModel.reduce(ProductDetailUiStateEvent.LoadProduct(productId))
+    }
 
     LaunchedEffect(Unit) {
         sheetState.expand()

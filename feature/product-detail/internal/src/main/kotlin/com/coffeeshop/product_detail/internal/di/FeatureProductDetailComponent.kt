@@ -2,9 +2,14 @@ package com.coffeeshop.product_detail.internal.di
 
 import androidx.lifecycle.ViewModelProvider
 import com.arttttt.nav3router.Router
+import com.coffeeshop.cache.api.Cache
+import com.coffeeshop.common.model.products.ProductWithModifiers
+import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.di.CoreDiComponent
+import com.coffeeshop.di.qualifiers.InMemoryCache
+import com.coffeshop.catalog.api.domain.usecase.GetProductDetailFromCacheUseCase
+import com.coffeshop.catalog.api.domain.usecase.RemoveProductDetailFromCacheUseCase
 import com.coffeshop.navigation.Route
-import com.coffeshop.navigation.di.CoreNavigationComponent
 import dagger.BindsInstance
 import dagger.Component
 
@@ -25,6 +30,12 @@ interface FeatureProductDetailComponent {
         fun coreDiComponent(coreDiComponent: CoreDiComponent): Builder
 
         @BindsInstance fun router(router: Router<Route>): Builder
+
+        @BindsInstance fun productDetailInMemoryCache(@InMemoryCache productDetailCache: Cache<ID, ProductWithModifiers>): Builder
+
+        @BindsInstance fun getProductDetailFromCacheUseCase(useCase: GetProductDetailFromCacheUseCase): Builder
+
+        @BindsInstance fun removeProductDetailFromCacheUseCase(useCase: RemoveProductDetailFromCacheUseCase): Builder
 
         fun build(): FeatureProductDetailComponent
     }

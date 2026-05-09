@@ -18,13 +18,17 @@ import com.coffeeshop.common.result.Result
 import com.coffeeshop.common.result.asErrorResult
 import com.coffeeshop.common.result.isSuccess
 import com.coffeeshop.di.qualifiers.DispatcherDefault
+import com.coffeeshop.di.qualifiers.DispatcherMain
 import com.coffeeshop.product_detail.api.domain.usecase.CalculateProductTotalPriceUseCase
 import com.coffeeshop.product_detail.api.domain.usecase.DecrementQuantityUseCase
 import com.coffeeshop.product_detail.api.domain.usecase.IncrementQuantityUseCase
 import com.coffeeshop.utils.findOrThrow
+import com.coffeshop.catalog.api.domain.usecase.GetProductDetailFromCacheUseCase
+import com.coffeshop.catalog.api.domain.usecase.RemoveProductDetailFromCacheUseCase
 import com.coffeshop.navigation.Route
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,8 +37,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 internal sealed interface ProductDetailUiStateStatus {
 
@@ -87,16 +89,14 @@ internal fun ProductDetailUiState.toOrderItem(): OrderItem {
 
 internal sealed interface ProductDetailUiStateEvent {
 
+    data class LoadProduct(val productId: ID) : ProductDetailUiStateEvent
     data object CalculateProductTotalPrice : ProductDetailUiStateEvent
     data object DismissProductDetailBottomSheet : ProductDetailUiStateEvent
     data class SelectVolume(val volumeString: String) : ProductDetailUiStateEvent
     data class SelectModifier(val groupTitle: String, val optionTitle: String) : ProductDetailUiStateEvent
     data class IncrementQuantity(val current: Int) : ProductDetailUiStateEvent
-
     data class DecrementQuantity(val current: Int) : ProductDetailUiStateEvent
-
     data class CommentChanged(val comment: String) : ProductDetailUiStateEvent
-
     data object AddToCart : ProductDetailUiStateEvent
 }
 
@@ -105,7 +105,10 @@ internal class ProductDetailViewModel
     private val calculateProductTotalPrice: CalculateProductTotalPriceUseCase,
     private val incrementQuantity: IncrementQuantityUseCase,
     private val decrementQuantity: DecrementQuantityUseCase,
-    @param:DispatcherDefault private val dispatcher: CoroutineDispatcher,
+    private val getProductDetailFromCache: GetProductDetailFromCacheUseCase,
+    private val removeProductDetailFromCache: RemoveProductDetailFromCacheUseCase,
+    @param:DispatcherDefault private val defaultDispatcher: CoroutineDispatcher,
+    @param:DispatcherMain private val mainDispatcher: CoroutineDispatcher,
     private val router: Router<Route>
 ) : ViewModel() {
 
@@ -114,6 +117,7 @@ internal class ProductDetailViewModel
 
     fun reduce(event: ProductDetailUiStateEvent) {
         when (event) {
+            is ProductDetailUiStateEvent.LoadProduct -> onLoadProduct(event)
             ProductDetailUiStateEvent.CalculateProductTotalPrice -> onCalculateProductTotalPrice()
             ProductDetailUiStateEvent.DismissProductDetailBottomSheet -> onDismissProductDetailBottomSheet()
             is ProductDetailUiStateEvent.SelectVolume -> onSelectVolume(event)
@@ -122,6 +126,26 @@ internal class ProductDetailViewModel
             is ProductDetailUiStateEvent.IncrementQuantity -> onIncrementQuantity(event)
             is ProductDetailUiStateEvent.CommentChanged -> onCommentChanged(event)
             ProductDetailUiStateEvent.AddToCart -> onAddToCart()
+        }
+    }
+
+    private fun onLoadProduct(event: ProductDetailUiStateEvent.LoadProduct) {
+        viewModelScope.launch {
+            when (val result = getProductDetailFromCache(event.productId)) {
+                is Result.Success -> {
+                    val product = result.data
+                    _uiState.update {
+                        it.copy(
+                            status = ProductDetailUiStateStatus.Success,
+                            selectedProduct = product,
+                            selectedVolume = product.availableSizes.minByOrNull { s -> s.ml } ?: Size.MEDIUM,
+                        )
+                    }
+                    onCalculateProductTotalPrice()
+                }
+                is Result.Error -> _uiState.update { it.copy(status = ProductDetailUiStateStatus.Error) }
+                else -> _uiState.update { it.copy(status = ProductDetailUiStateStatus.Error) }
+            }
         }
     }
 
@@ -134,15 +158,13 @@ internal class ProductDetailViewModel
     }
 
     private fun onIncrementQuantity(event: ProductDetailUiStateEvent.IncrementQuantity) {
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(defaultDispatcher) {
             val newQuantity = async { incrementQuantity(event.current) }.await()
 
             if (newQuantity.isSuccess()) {
-                withContext(Dispatchers.Main) {
+                withContext(mainDispatcher) {
                     _uiState.update {
-                        it.copy(
-                            quantity = (newQuantity as Result.Success<Int>).data
-                        )
+                        it.copy(quantity = (newQuantity as Result.Success<Int>).data)
                     }
                 }
             }
@@ -150,15 +172,13 @@ internal class ProductDetailViewModel
     }
 
     private fun onDecrementQuantity(event: ProductDetailUiStateEvent.DecrementQuantity) {
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(defaultDispatcher) {
             val newQuantity = async { decrementQuantity(event.current) }.await()
 
             if (newQuantity.isSuccess()) {
-                withContext(Dispatchers.Main) {
+                withContext(mainDispatcher) {
                     _uiState.update {
-                        it.copy(
-                            quantity = (newQuantity as Result.Success<Int>).data
-                        )
+                        it.copy(quantity = (newQuantity as Result.Success<Int>).data)
                     }
                 }
             }
@@ -166,7 +186,9 @@ internal class ProductDetailViewModel
     }
 
     private fun onSelectModifier(event: ProductDetailUiStateEvent.SelectModifier) {
-        val modifier: Modifier = _uiState.value.selectedProduct?.compatibleModifiers?.findOrThrow { it.additiveName.value == event.optionTitle } ?: throw IllegalArgumentException("Invalid modifier")
+        val modifier: Modifier = _uiState.value.selectedProduct?.compatibleModifiers
+            ?.findOrThrow { it.additiveName.value == event.optionTitle }
+            ?: throw IllegalArgumentException("Invalid modifier")
 
         _uiState.update { state ->
             val current: Modifier? = state.selectedModifiers[modifier.category]
@@ -189,38 +211,37 @@ internal class ProductDetailViewModel
     }
 
     private fun onCalculateProductTotalPrice() {
-        _uiState.update {
-            it.copy(status = ProductDetailUiStateStatus.Loading)
-        }
+        _uiState.update { it.copy(status = ProductDetailUiStateStatus.Loading) }
 
-        var result: Result<Price>? = null
         viewModelScope.launch {
-             result = try {
-                calculateProductTotalPrice(
-                    orderItem = _uiState.value.toOrderItem()
-                )
+            val result = try {
+                calculateProductTotalPrice(orderItem = _uiState.value.toOrderItem())
             } catch (cause: Throwable) {
                 cause.asErrorResult()
             }
-        }
 
-        if (result.isSuccess()) {
-            _uiState.update {
-                it.copy(
-                    totalPrice = (result as Result.Success<Price>).data.display()
-                )
-            }
-        } else {
-            _uiState.update {
-                it.copy(
-                    status = ProductDetailUiStateStatus.Error
-                )
+            withContext(mainDispatcher) {
+                if (result.isSuccess()) {
+                    _uiState.update { it.copy(
+                        status = ProductDetailUiStateStatus.Success,
+                        totalPrice = (result as Result.Success<Price>).data.display(),
+                    )}
+                } else {
+                    _uiState.update { it.copy(status = ProductDetailUiStateStatus.Error) }
+                }
             }
         }
     }
 
     override fun onCleared() {
+        val productId = _uiState.value.selectedProduct?.productId
         viewModelScope.cancel("$TAG onCleared")
+
+        if (productId != null) {
+            CoroutineScope(SupervisorJob() + defaultDispatcher).launch {
+                removeProductDetailFromCache(productId)
+            }
+        }
 
         super.onCleared()
     }

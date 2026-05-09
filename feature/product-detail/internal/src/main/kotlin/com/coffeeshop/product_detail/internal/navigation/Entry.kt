@@ -11,9 +11,10 @@ import com.coffeshop.navigation.Route
 fun EntryProviderScope<NavKey>.productDetailScreenEntry(
     viewModelFactory: ViewModelProvider.Factory
 ) {
-    entry<ProductDetailRoute> {
+    entry<ProductDetailRoute> { route ->
         ProductDetailScreen(
-            viewModelFactory = viewModelFactory
+            productId = route.productID,
+            viewModelFactory = viewModelFactory,
         )
     }
 }
