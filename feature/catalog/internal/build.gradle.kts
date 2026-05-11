@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":core:json"))
     implementation(project(":core:di"))
     implementation(project(":core:build-config:api"))
+    implementation(project(":core:cache:api"))
 
     implementation(project(":feature:catalog:api"))
     implementation(project(":feature:profile:api"))

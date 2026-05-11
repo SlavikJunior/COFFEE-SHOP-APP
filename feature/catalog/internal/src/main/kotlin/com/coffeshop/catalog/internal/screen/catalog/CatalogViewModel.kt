@@ -10,11 +10,14 @@ import com.coffeeshop.common.model.products.ProductWithModifiers
 import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.common.result.Result
 import com.coffeeshop.common.result.asErrorResult
+import com.coffeeshop.common.result.isSuccess
 import com.coffeeshop.product_detail.api.presentation.navigation.ProductDetailRoute
 import com.coffeeshop.profile.api.presentation.navigation.ProfileRoute
 import com.coffeeshop.utils.groupBy
 import com.coffeshop.catalog.api.domain.usecase.GetFullMenuUseCase
 import com.coffeshop.catalog.api.domain.usecase.GetProductDetailByProductIdUseCase
+import com.coffeshop.catalog.api.domain.usecase.IsProductDetailStoredInCacheUseCase
+import com.coffeshop.catalog.api.domain.usecase.SaveProductDetailInCacheUseCase
 import com.coffeshop.navigation.Route
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,6 +64,8 @@ internal class CatalogViewModel
 @Inject constructor(
     private val getFullMenu: GetFullMenuUseCase,
     private val getProductDetailByProductId: GetProductDetailByProductIdUseCase,
+    private val isProductDetailStoredInCache: IsProductDetailStoredInCacheUseCase,
+    private val saveProductDetailInCache: SaveProductDetailInCacheUseCase,
     private val router: Router<Route>
 ) : ViewModel() {
 
@@ -114,19 +119,26 @@ internal class CatalogViewModel
 
     private fun onGetProductDetail(event: CatalogUiStateEvent.GetProductDetail) {
         searchJob = viewModelScope.launch {
+            val isStored = isProductDetailStoredInCache(event.productId)
+            if (isStored.isSuccess() && (isStored as Result.Success).data) {
+                router.push(ProductDetailRoute(productID = event.productId))
+                return@launch
+            }
+
             val result: Result<ProductWithModifiers> =
                 try {
                     getProductDetailByProductId(productId = event.productId)
                 } catch (cause: Throwable) {
                     cause.asErrorResult()
                 }
+
             when (result) {
                 is Result.Success<ProductWithModifiers> -> {
                     val product = result.data
-
-                    router.push(ProductDetailRoute(
-                        productID = product.productId
-                    ))
+                    val saved: Result<Boolean> = saveProductDetailInCache(product)
+                    if (saved.isSuccess() && (saved as Result.Success).data) {
+                        router.push(ProductDetailRoute(productID = product.productId))
+                    }
                 }
                 is Result.Error -> _uiState.update { it.copy(state = CatalogUiStateStatus.Error(result.exception)) }
                 else -> throw IllegalArgumentException("Illegal product detail result: $result")

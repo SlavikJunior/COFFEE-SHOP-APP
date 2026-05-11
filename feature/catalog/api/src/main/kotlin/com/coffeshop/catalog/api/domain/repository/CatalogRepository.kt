@@ -16,4 +16,14 @@ interface CatalogRepository {
     suspend fun getProductDetailByProductId(productId: ID): Result<ProductWithModifiers>
 
     suspend fun getAllModifiers(): Result<List<Modifier>>
+
+    suspend fun saveProductDetailInCache(productDetail: ProductWithModifiers): Result<Boolean>
+
+    suspend fun removeProductDetailFromCache(key: ID): Result<ProductWithModifiers?>
+
+    suspend fun getProductDetailFromCache(key: ID): Result<ProductWithModifiers>
+
+    suspend fun isProductDetailStoredInCache(key: ID): Result<Boolean>
+
+    fun getProductDetailCacheSize(): Result<Int>
 }
