@@ -13,3 +13,7 @@ annotation class DispatcherDefault
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class DispatcherUnconfined
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class DispatcherMain

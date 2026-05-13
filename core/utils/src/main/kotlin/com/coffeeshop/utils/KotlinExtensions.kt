@@ -43,3 +43,9 @@ inline fun <T> Iterable<T>.findOrThrow(message: String? = null, predicate: (T) -
 
     return requireNotNull(res)
 }
+
+@Suppress("UNCHECKED_CAST")
+fun <K, V> Map<K, V>.getOrThrow(key: K, message: String? = null): V {
+    val item: V = this.getOrDefault(key = key) { IllegalArgumentException(message) } as V
+    return item
+}

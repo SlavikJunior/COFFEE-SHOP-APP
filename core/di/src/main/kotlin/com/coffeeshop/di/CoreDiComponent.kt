@@ -2,6 +2,7 @@ package com.coffeeshop.di
 
 import com.coffeeshop.di.qualifiers.DispatcherDefault
 import com.coffeeshop.di.qualifiers.DispatcherIO
+import com.coffeeshop.di.qualifiers.DispatcherMain
 import com.coffeeshop.di.qualifiers.DispatcherUnconfined
 import dagger.Component
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,4 +22,7 @@ interface CoreDiComponent {
 
     @get:DispatcherUnconfined
     val dispatcherUnconfined: CoroutineDispatcher
+
+    @get:DispatcherMain
+    val dispatcherMain: CoroutineDispatcher
 }

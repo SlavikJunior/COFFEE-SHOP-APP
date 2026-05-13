@@ -2,6 +2,7 @@ package com.coffeeshop.di
 
 import com.coffeeshop.di.qualifiers.DispatcherDefault
 import com.coffeeshop.di.qualifiers.DispatcherIO
+import com.coffeeshop.di.qualifiers.DispatcherMain
 import com.coffeeshop.di.qualifiers.DispatcherUnconfined
 import dagger.Module
 import dagger.Provides
@@ -19,4 +20,7 @@ object CoreDiModule {
 
     @[Provides CoreDiScope DispatcherUnconfined]
     fun provideDispatcherUnconfined(): CoroutineDispatcher = Dispatchers.Unconfined
+
+    @[Provides CoreDiScope DispatcherMain]
+    fun provideDispatcherMain(): CoroutineDispatcher = Dispatchers.Main
 }
