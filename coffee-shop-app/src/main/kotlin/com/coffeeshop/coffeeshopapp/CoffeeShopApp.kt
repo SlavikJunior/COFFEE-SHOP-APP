@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.coffeeshop.auth.internal.di.DaggerFeatureAuthComponent
 import com.coffeeshop.auth.internal.di.FeatureAuthComponent
+import com.coffeeshop.cache.internal.di.CoreCacheComponent
 import com.coffeeshop.database.di.DaggerDatabaseComponent
 import com.coffeeshop.database.di.DatabaseComponent
 import com.coffeeshop.di.CoreDiComponent
@@ -19,7 +20,6 @@ import com.coffeshop.catalog.internal.di.DaggerFeatureCatalogComponent
 import com.coffeshop.catalog.internal.di.FeatureCatalogComponent
 import com.coffeshop.deps.AppDeps
 import com.coffeshop.navigation.di.CoreNavigationComponent
-import com.coffeshop.navigation.di.DaggerCoreNavigationComponent
 
 class CoffeeShopApp : Application() {
 
@@ -29,6 +29,7 @@ class CoffeeShopApp : Application() {
     internal lateinit var jsonComponent: JsonComponent
     internal lateinit var coreDiComponent: CoreDiComponent
     internal lateinit var coreNavigationComponent: CoreNavigationComponent
+    internal lateinit var coreCacheComponent: CoreCacheComponent
     internal lateinit var databaseComponent: DatabaseComponent
     internal lateinit var networkComponent: NetworkComponent
 
@@ -50,6 +51,8 @@ class CoffeeShopApp : Application() {
         coreDiComponent = DaggerCoreDiComponent.create()
 
         coreNavigationComponent = appDeps.coreNavigationComponent
+
+        coreCacheComponent = appDeps.coreCacheComponent
 
         databaseComponent = DaggerDatabaseComponent.builder()
             .applicationContext(this)
@@ -83,18 +86,22 @@ class CoffeeShopApp : Application() {
             .databaseComponent(databaseComponent)
             .coreDiComponent(coreDiComponent)
             .router(coreNavigationComponent.router())
+            .productDetailInMemoryCache(coreCacheComponent.productDetailCache())
             .build()
 
         featureProfileComponent = DaggerFeatureProfileComponent.builder()
+            .coreDiComponent(coreDiComponent)
             .applicationContext(this)
             .retrofit(networkComponent.retrofit)
-            .dispatcherIo(coreDiComponent.dispatcherIO)
             .router(coreNavigationComponent.router())
             .build()
 
         featureProductDetailComponent = DaggerFeatureProductDetailComponent.builder()
             .coreDiComponent(coreDiComponent)
             .router(coreNavigationComponent.router())
+            .productDetailInMemoryCache(coreCacheComponent.productDetailCache())
+            .getProductDetailFromCacheUseCase(featureCatalogComponent.getProductDetailFromCacheUseCase)
+            .removeProductDetailFromCacheUseCase(featureCatalogComponent.removeProductDetailFromCacheUseCase)
             .build()
     }
 }

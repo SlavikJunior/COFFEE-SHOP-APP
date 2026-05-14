@@ -52,6 +52,8 @@ dependencies {
     implementation(project(path = ":core:database"))
     implementation(project(path = ":core:build-config:api"))
     implementation(project(path = ":core:build-config:internal"))
+    implementation(project(path = ":core:cache:api"))
+    implementation(project(path = ":core:cache:internal"))
 
     // feature deps
     implementation(project(path = ":feature:auth:api"))

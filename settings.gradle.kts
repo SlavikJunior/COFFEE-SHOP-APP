@@ -40,6 +40,8 @@ include(":core:deps")
 include(":core:navigation")
 include(":core:build-config:api")
 include(":core:build-config:internal")
+include(":core:cache:api")
+include(":core:cache:internal")
 
 
 // features
@@ -54,4 +56,3 @@ include(":feature:profile:internal")
 
 include(":feature:product-detail:api")
 include(":feature:product-detail:internal")
-include(":core:cache:api")

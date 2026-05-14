@@ -12,6 +12,8 @@ import com.coffeeshop.common.model.support.Size
 import com.coffeeshop.common.model.user.User
 import com.coffeeshop.common.model.user.orEmpty
 import com.coffeeshop.common.result.Result
+import com.coffeeshop.di.qualifiers.DispatcherDefault
+import com.coffeeshop.di.qualifiers.DispatcherMain
 import com.coffeeshop.profile.api.domain.usecase.ChangeEmailUseCase
 import com.coffeeshop.profile.api.domain.usecase.ChangeNameUseCase
 import com.coffeeshop.profile.api.domain.usecase.ChangePhoneNumberUseCase
@@ -21,6 +23,7 @@ import com.coffeeshop.profile.api.domain.usecase.LogoutUseCase
 import com.coffeeshop.profile.api.domain.usecase.SendFeedBackUseCase
 import com.coffeeshop.profile.api.domain.usecase.ToggleGetNotificationsUseCase
 import com.coffeshop.navigation.Route
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -114,6 +117,8 @@ internal class ProfileViewModel
     private val sendFeedBack: SendFeedBackUseCase,
     private val toggleGetNotifications: ToggleGetNotificationsUseCase,
 //    private val router: Router<Route>
+    @param:DispatcherDefault private val defaultDispatcher: CoroutineDispatcher,
+    @param:DispatcherMain private val mainDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
