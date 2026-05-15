@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.coffeeshop.designsystem.Secondary
+import com.coffeeshop.designsystem.common.Secondary
 
 /**
  * Строка с переключателем: метка слева (all-caps), зелёный Switch справа.

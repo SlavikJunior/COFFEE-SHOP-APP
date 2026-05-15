@@ -21,10 +21,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.designsystem.Beige
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.Secondary
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.designsystem.common.Beige
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.common.White
 
 /**
  * Группа чипов-опций с заголовком: выбор объёма (250 мл / 350 мл),

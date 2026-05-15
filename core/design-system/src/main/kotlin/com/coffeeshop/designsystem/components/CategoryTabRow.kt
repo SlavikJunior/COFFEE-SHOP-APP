@@ -17,9 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.Secondary
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.common.White
 
 /**
  * Горизонтальный скролл-ряд категорий с подчёркиванием активного таба.
@@ -52,7 +52,7 @@ fun CategoryTabRow(
 @Preview(showBackground = true)
 @Composable
 private fun CategoryTabRowPreview() = CategoryTabRow(
-    tabs = listOf("Фирменные", "Кофе", "Не кофе", "Матча", "Выпечка"),
+    tabs = listOf("Фирменные", "Кофе", "Не кофе", "Матча"),
     selectedIndex = 1,
     onTabSelected = {},
 )

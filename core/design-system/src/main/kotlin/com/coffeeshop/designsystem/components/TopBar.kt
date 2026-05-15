@@ -21,21 +21,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.coffeeshop.designsystem.Beige
-import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.common.Beige
+import com.coffeeshop.designsystem.common.DarkBrown
 import com.coffeeshop.designsystem.R
-import com.coffeeshop.designsystem.Secondary
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.designsystem.common.CoffeeShopTopBarTextStyle
+import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.common.White
 
 private val TopBarHeight = 56.dp
 
 /**
  * Шапка главного экрана каталога: текстовый логотип «1804» слева,
- * иконка профиля справа. Корзина вынесена в [CartFab].
+ * иконка профиля справа.
  * Используется только на экране каталога.
  */
 @Composable
@@ -80,11 +80,7 @@ fun SimpleTopBar(
     ) {
         Text(
             text = title.uppercase(),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            letterSpacing = 1.sp,
-            color = DarkBrown,
-            textAlign = TextAlign.Center,
+            style = CoffeeShopTopBarTextStyle,
             modifier = Modifier.weight(1f),
         )
     }
@@ -119,11 +115,7 @@ fun ProfileTopBar(
         }
         Text(
             text = title.uppercase(),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            letterSpacing = 1.sp,
-            color = DarkBrown,
-            textAlign = TextAlign.Center,
+            style = CoffeeShopTopBarTextStyle,
             modifier = Modifier.weight(1f),
         )
         CircleIconButton(
@@ -165,11 +157,7 @@ fun ScreenTopBar(
         }
         Text(
             text = title.uppercase(),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            letterSpacing = 1.sp,
-            color = DarkBrown,
-            textAlign = TextAlign.Center,
+            style = CoffeeShopTopBarTextStyle,
             modifier = Modifier.weight(1f),
         )
         CircleIconButton(

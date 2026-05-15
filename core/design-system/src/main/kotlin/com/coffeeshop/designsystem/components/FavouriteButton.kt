@@ -16,10 +16,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import com.coffeeshop.designsystem.Beige
-import com.coffeeshop.designsystem.DarkBrown
+import com.coffeeshop.designsystem.common.Beige
+import com.coffeeshop.designsystem.common.DarkBrown
 import com.coffeeshop.designsystem.R
-import com.coffeeshop.designsystem.Secondary
+import com.coffeeshop.designsystem.common.Secondary
 
 /**
  * Кнопка «в избранное» — маленькое сердце в бежевом круге.

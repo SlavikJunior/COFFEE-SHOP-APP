@@ -25,9 +25,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.Secondary
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.common.White
 
 /**
  * Счётчик количества «− N +» с ограничением минимального значения.
@@ -41,6 +41,7 @@ fun CoffeeStepper(
     onIncrement: () -> Unit,
     modifier: Modifier = Modifier,
     minValue: Int = 1,
+    size: Int = 40
 ) {
     val shape = RoundedCornerShape(4.dp)
 
@@ -55,6 +56,7 @@ fun CoffeeStepper(
         StepperButton(
             onClick = onDecrement,
             enabled = value > minValue,
+            size = size,
         ) {
             Icon(
                 imageVector = Icons.Default.Remove,
@@ -73,7 +75,7 @@ fun CoffeeStepper(
             modifier = Modifier.widthIn(min = 36.dp),
         )
 
-        StepperButton(onClick = onIncrement, enabled = true) {
+        StepperButton(onClick = onIncrement, enabled = true, size) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = stringResource(R.string.cd_stepper_increment),
@@ -89,18 +91,20 @@ fun CoffeeStepper(
 private fun CoffeeStepperPreview() = CoffeeStepper(
     value = 2,
     onDecrement = {},
-    onIncrement = {}
+    onIncrement = {},
+    size = 40
 )
 
 @Composable
 private fun StepperButton(
     onClick: () -> Unit,
     enabled: Boolean,
+    size: Int = 40,
     content: @Composable () -> Unit,
 ) {
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(size.dp)
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {

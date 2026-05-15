@@ -12,8 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.Secondary
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.Secondary
 
 /**
  * Заголовок секции: текст all-caps серым цветом + горизонтальный разделитель.

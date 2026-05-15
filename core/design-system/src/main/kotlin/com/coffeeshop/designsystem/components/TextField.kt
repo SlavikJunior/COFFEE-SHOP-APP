@@ -20,9 +20,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.ErrorRed
-import com.coffeeshop.designsystem.Secondary
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.ErrorRed
+import com.coffeeshop.designsystem.common.Secondary
 
 /**
  * Строка-поле в стиле профиля: метка слева (all-caps), значение справа.

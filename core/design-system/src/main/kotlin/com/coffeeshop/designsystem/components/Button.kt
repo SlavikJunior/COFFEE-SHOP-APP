@@ -8,13 +8,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.designsystem.common.CoffeeShopButtonTextStyle
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.White
 
 /**
  * Кнопка с обводкой (белый фон, тёмная рамка).
@@ -48,10 +47,9 @@ fun CoffeeButton(
     ) {
         Text(
             text = text.uppercase(),
-            fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
-            letterSpacing = 1.sp,
-            textAlign = TextAlign.Center,
+            style = CoffeeShopButtonTextStyle,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -91,10 +89,9 @@ fun CoffeeButtonFilled(
     ) {
         Text(
             text = text.uppercase(),
-            fontWeight = FontWeight.Medium,
-            fontSize = 13.sp,
-            letterSpacing = 1.sp,
-            textAlign = TextAlign.Center,
+            style = CoffeeShopButtonTextStyle,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
