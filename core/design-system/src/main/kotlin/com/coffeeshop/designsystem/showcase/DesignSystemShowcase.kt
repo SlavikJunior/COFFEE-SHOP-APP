@@ -1,4 +1,4 @@
-package com.coffeeshop.designsystem.components
+package com.coffeeshop.designsystem.showcase
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +17,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.coffeeshop.designsystem.CoffeeTheme
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.Secondary
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.designsystem.common.CoffeeTheme
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.common.White
+import com.coffeeshop.designsystem.components.CategoryTabRow
+import com.coffeeshop.designsystem.components.CoffeeButton
+import com.coffeeshop.designsystem.components.CoffeeButtonFilled
+import com.coffeeshop.designsystem.components.CoffeeInputField
+import com.coffeeshop.designsystem.components.CoffeeProfileField
+import com.coffeeshop.designsystem.components.CoffeeStepper
+import com.coffeeshop.designsystem.components.CoffeeToggleRow
+import com.coffeeshop.designsystem.components.FavouriteButton
+import com.coffeeshop.designsystem.components.HomeTopBar
+import com.coffeeshop.designsystem.components.OptionSelectorGroup
+import com.coffeeshop.designsystem.components.ProductCard
+import com.coffeeshop.designsystem.components.ProfileLinkRow
+import com.coffeeshop.designsystem.components.ProfileTopBar
+import com.coffeeshop.designsystem.components.ScreenTopBar
+import com.coffeeshop.designsystem.components.SectionHeader
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -112,8 +127,6 @@ private fun DesignSystemShowcase() {
                 ) {
                     CoffeeStepper(value = 1, onDecrement = {}, onIncrement = {})
                     CoffeeStepper(value = 3, onDecrement = {}, onIncrement = {})
-                    CartFab(onClick = {}, itemCount = 0)
-                    CartFab(onClick = {}, itemCount = 5)
                 }
             }
 

@@ -1,4 +1,4 @@
-package com.coffeeshop.designsystem
+package com.coffeeshop.designsystem.common
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
