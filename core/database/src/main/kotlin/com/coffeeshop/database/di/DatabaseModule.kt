@@ -5,6 +5,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.coffeeshop.database.common.CoffeeShopDatabase
 import com.coffeeshop.database.common.TypeConverter
+import com.coffeeshop.database.dao.CachedProductDao
+import com.coffeeshop.database.dao.CartDao
+import com.coffeeshop.database.dao.FavoriteProductDao
 import com.coffeeshop.di.qualifiers.ApplicationContext
 import com.coffeeshop.di.qualifiers.DispatcherIO
 import dagger.Module
@@ -28,4 +31,13 @@ object DatabaseModule {
         .setQueryCoroutineContext(dispatcher)
         .setJournalMode(journalMode = RoomDatabase.JournalMode.AUTOMATIC)
         .build()
+
+    @[Provides DatabaseScope]
+    fun provideCartDao(database: CoffeeShopDatabase): CartDao = database.cartDao
+
+    @[Provides DatabaseScope]
+    fun provideCachedProductDao(database: CoffeeShopDatabase): CachedProductDao = database.cachedProductDao
+
+    @[Provides DatabaseScope]
+    fun provideFavoriteProductDao(database: CoffeeShopDatabase): FavoriteProductDao = database.favoriteProductDao
 }

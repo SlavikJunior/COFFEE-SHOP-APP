@@ -5,6 +5,7 @@ import androidx.room.TypeConverter
 import com.coffeeshop.common.model.products.Category
 import com.coffeeshop.common.model.support.Price
 import com.coffeeshop.common.model.support.Size
+import com.coffeeshop.database.entity.CartItemEntity
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -13,6 +14,18 @@ class TypeConverter
 @Inject constructor(
     private val json: Json
 ) {
+
+    @TypeConverter
+    fun fromListOfCartItemEntityToJsonString(list: List<CartItemEntity>) = json.encodeToString(list)
+
+    @TypeConverter
+    fun fromJsonStringToListOfCartItemEntity(string: String): List<CartItemEntity> = json.decodeFromString(string)
+
+    @TypeConverter
+    fun fromListOfLongToJsonString(list: List<Long>) = json.encodeToString(list)
+
+    @TypeConverter
+    fun fromJsonStringToListOfLong(string: String): List<Long> = json.decodeFromString(string)
 
     @TypeConverter
     fun fromSizeToJsonString(size: Size): String = json.encodeToString(size)

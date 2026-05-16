@@ -5,14 +5,17 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.coffeeshop.database.common.CoffeeShopDatabase.Companion.COFFEE_SHOP_DATABASE_VERSION
 import com.coffeeshop.database.dao.CachedProductDao
+import com.coffeeshop.database.dao.CartDao
 import com.coffeeshop.database.dao.FavoriteProductDao
 import com.coffeeshop.database.entity.CachedProduct
+import com.coffeeshop.database.entity.CartEntity
 import com.coffeeshop.database.entity.FavoriteProduct
 
 @Database(
     entities = [
         FavoriteProduct::class,
-        CachedProduct::class
+        CachedProduct::class,
+        CartEntity::class
     ],
     version = COFFEE_SHOP_DATABASE_VERSION,
     exportSchema = false
@@ -23,6 +26,8 @@ abstract class CoffeeShopDatabase : RoomDatabase() {
     abstract val favoriteProductDao: FavoriteProductDao
 
     abstract val cachedProductDao: CachedProductDao
+
+    abstract val cartDao: CartDao
 
     companion object {
         const val COFFEE_SHOP_DATABASE_NAME = "CoffeeShopDatabase"
