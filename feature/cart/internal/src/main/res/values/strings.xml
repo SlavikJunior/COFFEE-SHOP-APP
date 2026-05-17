@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="syrup_text">Сироп</string>
+    <string name="milk_text">Молоко</string>
+    <string name="vitamins_text">Витаминный Шот</string>
+    <string name="marshmallows_text">Маршмеллоу</string>
+    <string name="comments_text">Комментарий</string>
+    <string name="empty_cart_text">Корзина пуста</string>
+    <string name="add_to_empty_cart_text">Добавьте что-нибудь в корзину!</string>
+    <string name="remove_product_from_cart_text">Удалить %1$s из корзины</string>
+    <string name="remove_from_cart_text">убрать</string>
+    <string name="go_to_payment_text">ОПЛАТИТЬ %1$s</string>
+    <string name="cart_title">Корзина</string>
+</resources>
