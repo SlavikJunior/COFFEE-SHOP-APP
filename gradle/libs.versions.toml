@@ -22,6 +22,7 @@ lifecycleVersion = "2.10.0"
 dagger = "2.59.2"
 ksp = "2.3.6"
 jetbrainsKotlinJvm = "2.3.20"
+foundation = "1.11.1"
 
 
 [libraries]
@@ -62,6 +63,7 @@ lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecy
 dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [bundles]
 nav3 = [

@@ -38,6 +38,8 @@ dependencies {
     implementation(project(path = ":core:build-config:internal"))
     implementation(project(path = ":core:cache:api"))
     implementation(project(path = ":core:cache:internal"))
+    implementation(project(path = (":core:logger:api")))
+    implementation(project(path = (":core:logger:internal")))
     implementation(project(path = ":core:di"))
     implementation(project(path = ":core:navigation"))
 

@@ -1,5 +1,7 @@
 package com.coffeeshop.utils
 
+import com.coffeeshop.contracts.MenuItemSummaryDto
+
 @Suppress("UNCHECKED_CAST")
 fun <T : Number?, R : Number> T.orZero(): R = (this ?: 0) as R
 
@@ -44,8 +46,10 @@ inline fun <T> Iterable<T>.findOrThrow(message: String? = null, predicate: (T) -
     return requireNotNull(res)
 }
 
-@Suppress("UNCHECKED_CAST")
 fun <K, V> Map<K, V>.getOrThrow(key: K, message: String? = null): V {
-    val item: V = this.getOrDefault(key = key) { IllegalArgumentException(message) } as V
-    return item
+    return this.getOrElse(key) { throw IllegalArgumentException(message) }
+}
+
+fun Collection<MenuItemSummaryDto>.resolvePhotoUrls(baseUrl: String): List<MenuItemSummaryDto> {
+    return this.map { it.copy(photoUrl = baseUrl + it.photoUrl) }
 }

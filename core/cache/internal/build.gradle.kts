@@ -37,6 +37,7 @@ dependencies {
     implementation(project(path = ":core:utils"))
     implementation(project(path = ":core:di"))
     implementation(project(path = ":core:cache:api"))
+    implementation(project(path = ":core:logger:api"))
 
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)

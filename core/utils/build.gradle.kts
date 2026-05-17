@@ -12,5 +12,7 @@ kotlin {
     }
 }
 dependencies {
+    implementation(rootProject.files("libs/api-contracts.jar"))
+
     implementation(libs.kotlin.reflect)
 }

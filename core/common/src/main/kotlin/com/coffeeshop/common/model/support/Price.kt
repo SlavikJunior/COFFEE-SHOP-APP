@@ -24,6 +24,8 @@ data class Price(
         )
     }
 
+    fun toTotal(): Int = firstPart * 100 + secondPart
+
     operator fun plus(other: Price): Price {
         val totalSeconds = secondPart + other.secondPart
         val carry = totalSeconds / 100
@@ -49,4 +51,23 @@ data class Price(
         val otherTotal = other.firstPart * 100L + other.secondPart
         return thisTotal.compareTo(otherTotal)
     }
+
+    companion object {
+        fun emptyRublesPrice(): Price = Price(0, 0)
+    }
+}
+
+fun String.toPrice(): Price? {
+    return runCatching {
+        val (currency, numberPart) = when {
+            this.endsWith(" ₽") -> Currency.RUBLES to this.dropLast(2)
+            else -> return null
+        }
+        val parts = numberPart.split(",")
+        Price(
+            firstPart = parts[0].toInt(),
+            secondPart = if (parts.size > 1) parts[1].toInt() else 0,
+            currency = currency,
+        )
+    }.getOrNull()
 }
