@@ -13,44 +13,51 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.coffeeshop.common.model.products.CategoryType
+import com.coffeeshop.common.model.products.Product
+import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.designsystem.components.CategoryTabRow
+import com.coffeeshop.designsystem.components.CoffeeShopFloatingActionButton
 import com.coffeeshop.designsystem.components.HomeTopBar
 import com.coffeeshop.designsystem.components.LoadingOverlay
 import com.coffeeshop.designsystem.components.ProductCard
 import com.coffeeshop.designsystem.components.RetryOverlay
+import kotlinx.coroutines.launch
 
 @Composable
-fun CatalogScreen(
+ fun CatalogScreen(
     viewModelFactory: ViewModelProvider.Factory,
-) = CatalogScreenInternal(
-    viewModelFactory = viewModelFactory,
-)
-
-@Composable
-internal fun CatalogScreenInternal(
-    viewModelFactory: ViewModelProvider.Factory,
-    viewModel: CatalogViewModel = viewModel(
-        modelClass = CatalogViewModel::class,
-        factory = viewModelFactory,
-    )
 ) {
+    val viewModel: CatalogViewModel = viewModel(modelClass = CatalogViewModel::class,factory = viewModelFactory,)
+    val uiState = viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             HomeTopBar(
                 onProfileClick = { viewModel.reduce(CatalogUiStateEvent.ProfileClicked) },
                 modifier = Modifier.statusBarsPadding(),
             )
-        }
+        },
+        floatingActionButton = { CoffeeShopFloatingActionButton(
+            imageVector = Icons.Default.ShoppingCart,
+            onClick = { viewModel.reduce(event = CatalogUiStateEvent.NavigateToCart) },
+            text = uiState.value.cartPrice.display()
+        ) }
     ) { paddingValues ->
         CatalogScreenContent(
             viewModel = viewModel,
@@ -86,6 +93,26 @@ private fun CatalogScreenSuccessContent(
     paddingValues: PaddingValues = PaddingValues()
 ) {
     val uiState = viewModel.uiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val pagerState = rememberPagerState(
+        initialPage = CategoryType.entries.indexOf(uiState.value.selectedCategoryType)
+    ) { CategoryType.entries.size }
+
+    // Свайп пейджера → обновить категорию в ViewModel
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.reduce(
+            CatalogUiStateEvent.ChangeCategoryType(CategoryType.entries[pagerState.currentPage])
+        )
+    }
+
+    // Смена категории через таб → анимировать пейджер
+    LaunchedEffect(uiState.value.selectedCategoryType) {
+        val targetPage = CategoryType.entries.indexOf(uiState.value.selectedCategoryType)
+        if (pagerState.currentPage != targetPage) {
+            pagerState.animateScrollToPage(targetPage)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -96,28 +123,42 @@ private fun CatalogScreenSuccessContent(
             tabs = CategoryType.entries.map { it.russianName },
             selectedIndex = CategoryType.entries.indexOf(uiState.value.selectedCategoryType),
             onTabSelected = { index ->
-                viewModel.reduce(
-                    event = CatalogUiStateEvent.ChangeCategoryType(
-                        categoryType = CategoryType.entries[index]
-                    )
-                )
+                coroutineScope.launch { pagerState.animateScrollToPage(index) }
             },
             modifier = Modifier.fillMaxWidth(),
         )
 
-        when (uiState.value.selectedCategoryType) {
-            CategoryType.SIGNATURE -> CatalogScreenSuccessColumnContent(viewModel = viewModel)
-            else -> CatalogScreenSuccessGridContent(viewModel = viewModel)
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+        ) { page ->
+            val category = CategoryType.entries[page]
+            val products = uiState.value.productsMap[category] ?: emptyList()
+            when (category) {
+                CategoryType.SIGNATURE -> CatalogScreenSuccessColumnContent(
+                    products = products,
+                    favouriteProductIds = uiState.value.favouriteProductIds,
+                    onFavouriteToggle = { viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(it)) },
+                    onProductClick = { viewModel.reduce(CatalogUiStateEvent.GetProductDetail(it)) },
+                )
+                else -> CatalogScreenSuccessGridContent(
+                    products = products,
+                    favouriteProductIds = uiState.value.favouriteProductIds,
+                    onFavouriteToggle = { viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(it)) },
+                    onProductClick = { viewModel.reduce(CatalogUiStateEvent.GetProductDetail(it)) },
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun CatalogScreenSuccessColumnContent(
-    viewModel: CatalogViewModel
+    products: List<Product>,
+    favouriteProductIds: Set<ID>,
+    onFavouriteToggle: (ID) -> Unit,
+    onProductClick: (ID) -> Unit,
 ) {
-    val uiState = viewModel.uiState.collectAsState()
-
     LazyColumn(
         contentPadding = PaddingValues(
             start = 12.dp,
@@ -131,22 +172,14 @@ private fun CatalogScreenSuccessColumnContent(
             .fillMaxSize()
             .navigationBarsPadding(),
     ) {
-        items(uiState.value.products, key = { it.productId.value }) { product ->
+        items(products, key = { it.productId.value }) { product ->
             ProductCard(
                 name = product.productName.value,
-                price = try {
-                    product.prices.values.max().display()
-                } catch (_: Throwable) {
-                    "EMPTY PRICE"
-                },
+                price = product.prices.values.min().display(),
                 imageUrl = product.imageUrl,
-                isFavourite = product.productId in uiState.value.favouriteProductIds,
-                onFavouriteToggle = {
-                    viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(product.productId))
-                },
-                onClick = {
-                    viewModel.reduce(CatalogUiStateEvent.GetProductDetail(product.productId))
-                },
+                isFavourite = product.productId in favouriteProductIds,
+                onFavouriteToggle = { onFavouriteToggle(product.productId) },
+                onClick = { onProductClick(product.productId) },
             )
         }
     }
@@ -154,10 +187,11 @@ private fun CatalogScreenSuccessColumnContent(
 
 @Composable
 private fun CatalogScreenSuccessGridContent(
-    viewModel: CatalogViewModel
+    products: List<Product>,
+    favouriteProductIds: Set<ID>,
+    onFavouriteToggle: (ID) -> Unit,
+    onProductClick: (ID) -> Unit,
 ) {
-    val uiState = viewModel.uiState.collectAsState()
-
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
@@ -172,22 +206,14 @@ private fun CatalogScreenSuccessGridContent(
             .fillMaxSize()
             .navigationBarsPadding(),
     ) {
-        items(uiState.value.products, key = { it.productId.value }) { product ->
+        items(products, key = { it.productId.value }) { product ->
             ProductCard(
                 name = product.productName.value,
-                price = try {
-                    product.prices.values.max().display()
-                } catch (_: Throwable) {
-                    "EMPTY PRICE"
-                },
+                price = product.prices.values.min().display(),
                 imageUrl = product.imageUrl,
-                isFavourite = product.productId in uiState.value.favouriteProductIds,
-                onFavouriteToggle = {
-                    viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(product.productId))
-                },
-                onClick = {
-                    viewModel.reduce(CatalogUiStateEvent.GetProductDetail(product.productId))
-                },
+                isFavourite = product.productId in favouriteProductIds,
+                onFavouriteToggle = { onFavouriteToggle(product.productId) },
+                onClick = { onProductClick(product.productId) },
             )
         }
     }

@@ -1,6 +1,7 @@
 package com.coffeshop.catalog.internal.data.repository
 
 import android.util.Log
+import com.coffeeshop.buildconfig.api.BuildConfigProvider
 import com.coffeeshop.cache.api.Cache
 import com.coffeeshop.common.model.products.CategoryType
 import com.coffeeshop.common.model.products.Modifier
@@ -13,6 +14,7 @@ import com.coffeeshop.common.result.asSuccessResult
 import com.coffeeshop.common.result.isSuccess
 import com.coffeeshop.di.qualifiers.DispatcherIO
 import com.coffeeshop.di.qualifiers.InMemoryCache
+import com.coffeeshop.utils.resolvePhotoUrls
 import com.coffeshop.catalog.api.domain.repository.CatalogRepository
 import com.coffeshop.catalog.internal.data.mapper.toDomain
 import com.coffeshop.catalog.internal.data.service.CatalogService
@@ -25,7 +27,8 @@ internal class CatalogRepositoryImpl
 @Inject constructor(
     private val service: CatalogService,
     @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    @param:InMemoryCache private val productDetailCache: Cache<ID, ProductWithModifiers>
+    @param:InMemoryCache private val productDetailCache: Cache<ID, ProductWithModifiers>,
+    private val buildConfigProvider: BuildConfigProvider
 ) : CatalogRepository {
 
     override suspend fun getFullMenu(): Result<List<Product>> = withContext(dispatcher) {
@@ -33,6 +36,11 @@ internal class CatalogRepositoryImpl
             val response = service.getFullMenu()
             val products = response.categories.values
                 .flatten()
+                .resolvePhotoUrls(
+                    baseUrl = if (buildConfigProvider.isDebugBuild())
+                        buildConfigProvider.getCoffeeShopTestBaseUrl()
+                    else buildConfigProvider.getCoffeeShopBaseUrl()
+                )
                 .map { it.toDomain() }
 
             Log.i(TAG, "response on get full menu: $response")
@@ -63,8 +71,11 @@ internal class CatalogRepositoryImpl
     override suspend fun getProductDetailByProductId(productId: ID): Result<ProductWithModifiers> =
         withContext(dispatcher) {
             try {
+                val baseUrl = if (buildConfigProvider.isDebugBuild())
+                    buildConfigProvider.getCoffeeShopTestBaseUrl()
+                else buildConfigProvider.getCoffeeShopBaseUrl()
                 val dto = service.getProductDetail(productId.value)
-                dto.toDomain().asSuccessResult()
+                dto.copy(photoUrl = baseUrl + dto.photoUrl).toDomain().asSuccessResult()
             } catch (cause: Throwable) {
                 Log.e(TAG, "getProductDetail error: $cause")
                 cause.asErrorResult()
@@ -100,10 +111,7 @@ internal class CatalogRepositoryImpl
 
     override suspend fun isProductDetailStoredInCache(key: ID): Result<Boolean> =
         try {
-            if (productDetailCache.isStoredByKey(key).isSuccess())
-                true.asSuccessResult()
-            else
-                false.asSuccessResult()
+            productDetailCache.isStoredByKey(key)
         } catch (cause: Throwable) {
             cause.asErrorResult()
         }

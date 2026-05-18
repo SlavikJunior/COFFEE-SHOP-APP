@@ -49,10 +49,12 @@ dependencies {
     implementation(project(":core:di"))
     implementation(project(":core:build-config:api"))
     implementation(project(":core:cache:api"))
+    implementation(project(":core:logger:api"))
 
     implementation(project(":feature:catalog:api"))
     implementation(project(":feature:profile:api"))
     implementation(project(":feature:product-detail:api"))
+    implementation(project(":feature:cart:api"))
 
     // DI
     implementation(libs.dagger.core)
@@ -64,6 +66,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     // navigation
