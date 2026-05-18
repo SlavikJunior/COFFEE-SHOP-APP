@@ -37,10 +37,12 @@ dependencies {
     implementation(project(":core:design-system"))
     implementation(project(":core:build-config:api"))
     implementation(project(":core:cache:api"))
+    implementation(project(":core:logger:api"))
 
     implementation(project(":feature:catalog:api"))
     implementation(project(":feature:profile:api"))
     implementation(project(":feature:product-detail:api"))
+    implementation(project(":feature:cart:api"))
 
     // DI
     implementation(libs.dagger.core)

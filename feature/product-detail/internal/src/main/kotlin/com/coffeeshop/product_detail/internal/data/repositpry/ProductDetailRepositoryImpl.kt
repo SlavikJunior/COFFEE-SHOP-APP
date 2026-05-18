@@ -20,7 +20,6 @@ internal class ProductDetailRepositoryImpl
     @param:InMemoryCache private val productDetailCache: Cache<ID, ProductWithModifiers>
 ) : ProductDetailRepository {
 
-    // TODO("Перенести расчёт на бекенд. пока так")
     override suspend fun calculateProductTotalPrice(orderItem: OrderItem): Result<Price> =
         withContext(dispatcher) {
             return@withContext orderItem.totalPrice.asSuccessResult()

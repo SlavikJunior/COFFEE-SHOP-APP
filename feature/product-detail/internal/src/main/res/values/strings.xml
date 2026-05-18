@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="volume_text">Объём</string>
+    <string name="comment_text">Комментарий</string>
+    <string name="comment_text_placeholder">Пожелания к заказу</string>
+    <string name="add_to_cart_button_text">Добавить  %1$s</string>
+</resources>

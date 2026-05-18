@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,13 +44,14 @@ import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.common.model.support.Price
 import com.coffeeshop.common.model.support.Size
 import com.coffeeshop.common.model.support.display
-import com.coffeeshop.designsystem.Beige
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.designsystem.common.Beige
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.White
 import com.coffeeshop.designsystem.components.CoffeeButtonFilled
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.CoffeeStepper
 import com.coffeeshop.designsystem.components.OptionSelectorGroup
+import com.coffeeshop.product_detail.internal.R
 
 @Composable
 fun ProductDetailScreen(
@@ -157,8 +159,8 @@ private fun ProductDetailContent(
             modifier = Modifier.fillMaxWidth(),
         ) {
             AsyncImage(
-                model = state.imageUrl,
-                contentDescription = state.name,
+                model = state.selectedProduct?.imageUrl,
+                contentDescription = state.selectedProduct?.productName?.value,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(80.dp)
@@ -166,7 +168,7 @@ private fun ProductDetailContent(
                     .background(Beige),
             )
             Text(
-                text = state.name,
+                text = state.selectedProduct?.productName?.value.orEmpty(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = DarkBrown,
@@ -175,9 +177,9 @@ private fun ProductDetailContent(
 
         if (state.volumes.isNotEmpty()) {
             OptionSelectorGroup(
-                title = "Объём",
+                title = stringResource(R.string.volume_text),
                 options = state.volumes,
-                selectedOption = state.selectedVolume.display(),
+                selectedOption = state.selectedVolume!!.display(),
                 onOptionSelected = onVolumeSelected,
             )
         }
@@ -192,10 +194,10 @@ private fun ProductDetailContent(
         }
 
         CoffeeInputField(
-            label = "Комментарий",
+            label = stringResource(R.string.comment_text),
             value = state.comment,
             onValueChange = onCommentChange,
-            placeholder = "Пожелания к заказу",
+            placeholder = stringResource(R.string.comment_text_placeholder),
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -215,7 +217,7 @@ private fun ProductDetailContent(
             Spacer(modifier = Modifier.width(12.dp))
 
             CoffeeButtonFilled(
-                text = "Добавить  ${state.totalPrice}",
+                text = stringResource(R.string.add_to_cart_button_text, state.totalPrice),
                 onClick = onAddToCart,
                 modifier = Modifier.weight(1f),
             )

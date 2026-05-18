@@ -1,8 +1,12 @@
 package com.coffeeshop.product_detail.internal.screen.product_detail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arttttt.nav3router.Router
+import com.coffeeshop.cart.api.domain.model.CartItem
+import com.coffeeshop.cart.api.domain.model.CartItemModifier
+import com.coffeeshop.cart.api.domain.usecase.AddToCartUseCase
 import com.coffeeshop.common.model.order.OrderItem
 import com.coffeeshop.common.model.products.CategoryType
 import com.coffeeshop.common.model.products.Modifier
@@ -14,6 +18,7 @@ import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.common.model.support.Price
 import com.coffeeshop.common.model.support.Size
 import com.coffeeshop.common.model.support.display
+import com.coffeeshop.common.model.support.toPrice
 import com.coffeeshop.common.result.Result
 import com.coffeeshop.common.result.asErrorResult
 import com.coffeeshop.common.result.isSuccess
@@ -56,17 +61,15 @@ internal data class ProductDetailUiState(
 
     val selectedProduct: ProductWithModifiers? = null,
     val selectedCategoryType: CategoryType = CategoryType.COFFEE,
-    val selectedVolume: Size = Size.MEDIUM,
+    val selectedVolume: Size? = null,
     val selectedModifiers: Map<ModifierCategory, Modifier> = emptyMap(),
 
-    val quantity: Int = 0,
+    val quantity: Int = 1,
     val comment: String = "",
     val totalPrice: String = "",
 ) {
-    val name: String = selectedProduct?.productName?.value.orEmpty()
-    val imageUrl: String? = selectedProduct?.imageUrl
-    val volumes = selectedProduct?.availableSizes?.sortedBy { it.ml }?.map { it.display() } ?: emptyList()
-    val modifierGroups = selectedProduct?.compatibleModifiers
+    val volumes: List<String> = selectedProduct?.availableSizes?.sortedBy { it.ml }?.map { it.display() } ?: emptyList()
+    val modifierGroups: List<ModifierGroup> = selectedProduct?.compatibleModifiers
         ?.groupBy { it.category }
         ?.map { (category, modifiers) ->
             ModifierGroup(
@@ -81,7 +84,7 @@ internal fun ProductDetailUiState.toOrderItem(): OrderItem {
     return OrderItem(
         orderItemId = ID.random(),
         product = selectedProduct?.toProduct() ?: throw IllegalStateException("Selected product cannot be null"),
-        size = selectedVolume,
+        size = selectedVolume ?: throw IllegalStateException("Selected volume cannot be null"),
         quantity = quantity,
         modifiers = selectedModifiers.values.toList()
     )
@@ -102,6 +105,7 @@ internal sealed interface ProductDetailUiStateEvent {
 
 internal class ProductDetailViewModel
 @Inject constructor(
+    private val addToCart: AddToCartUseCase,
     private val calculateProductTotalPrice: CalculateProductTotalPriceUseCase,
     private val incrementQuantity: IncrementQuantityUseCase,
     private val decrementQuantity: DecrementQuantityUseCase,
@@ -130,13 +134,16 @@ internal class ProductDetailViewModel
     }
 
     private fun onLoadProduct(event: ProductDetailUiStateEvent.LoadProduct) {
+        Log.d(TAG, "onLoadProduct invoked with productId: ${event.productId.value}")
+
         viewModelScope.launch {
             when (val result = getProductDetailFromCache(event.productId)) {
                 is Result.Success -> {
+                    Log.d(TAG, "SuccessResult on get product detail from cache: ${result.data}")
+
                     val product = result.data
                     _uiState.update {
                         it.copy(
-                            status = ProductDetailUiStateStatus.Success,
                             selectedProduct = product,
                             selectedVolume = product.availableSizes.minByOrNull { s -> s.ml } ?: Size.MEDIUM,
                         )
@@ -150,7 +157,33 @@ internal class ProductDetailViewModel
     }
 
     private fun onAddToCart() {
-        // handle with logic from :feature:cart:api
+        val state = _uiState.value
+        val selectedProduct = state.selectedProduct ?: return
+        val price = state.totalPrice.toPrice() ?: return
+
+        val cartItem = CartItem(
+            productId = selectedProduct.productId,
+            productName = selectedProduct.productName,
+            imageUrl = selectedProduct.imageUrl,
+            price = price,
+            size = state.selectedVolume ?: Size.MEDIUM,
+            quantity = state.quantity,
+            comment = state.comment,
+            selectedModifiers = state.selectedModifiers.values.map { modifier ->
+                CartItemModifier(
+                    id = modifier.additiveId,
+                    name = modifier.additiveName.value,
+                    price = modifier.price,
+                    category = modifier.category,
+                )
+            },
+        )
+
+        CoroutineScope(SupervisorJob() + defaultDispatcher).launch {
+            addToCart(cartItem)
+        }
+
+        onDismissProductDetailBottomSheet()
     }
 
     private fun onCommentChanged(event: ProductDetailUiStateEvent.CommentChanged) {
@@ -167,6 +200,8 @@ internal class ProductDetailViewModel
                         it.copy(quantity = (newQuantity as Result.Success<Int>).data)
                     }
                 }
+
+                onCalculateProductTotalPrice()
             }
         }
     }
@@ -182,6 +217,8 @@ internal class ProductDetailViewModel
                     }
                 }
             }
+
+            onCalculateProductTotalPrice()
         }
     }
 
@@ -199,20 +236,30 @@ internal class ProductDetailViewModel
             }
             state.copy(selectedModifiers = newModifiers)
         }
+
+        onCalculateProductTotalPrice()
     }
 
     private fun onSelectVolume(event: ProductDetailUiStateEvent.SelectVolume) {
         val size = Size.entries.findOrThrow(message = "Incorrect size") { it.display() == event.volumeString }
         _uiState.update { it.copy(selectedVolume = size) }
+
+        onCalculateProductTotalPrice()
     }
 
     private fun onDismissProductDetailBottomSheet() {
+        _uiState.value.selectedProduct?.productId?.let { id ->
+            viewModelScope.launch {
+                removeProductDetailFromCache(id)
+            }
+        }
+
+        _uiState.update { ProductDetailUiState() }
+
         router.pop()
     }
 
     private fun onCalculateProductTotalPrice() {
-        _uiState.update { it.copy(status = ProductDetailUiStateStatus.Loading) }
-
         viewModelScope.launch {
             val result = try {
                 calculateProductTotalPrice(orderItem = _uiState.value.toOrderItem())
