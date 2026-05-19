@@ -42,6 +42,8 @@ include(":core:build-config:api")
 include(":core:build-config:internal")
 include(":core:cache:api")
 include(":core:cache:internal")
+include(":core:logger:api")
+include(":core:logger:internal")
 
 
 // features
@@ -56,3 +58,6 @@ include(":feature:profile:internal")
 
 include(":feature:product-detail:api")
 include(":feature:product-detail:internal")
+
+include(":feature:cart:api")
+include(":feature:cart:internal")

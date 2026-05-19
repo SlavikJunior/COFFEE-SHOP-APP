@@ -5,6 +5,8 @@ import android.content.Context
 import com.coffeeshop.auth.internal.di.DaggerFeatureAuthComponent
 import com.coffeeshop.auth.internal.di.FeatureAuthComponent
 import com.coffeeshop.cache.internal.di.CoreCacheComponent
+import com.coffeeshop.cart.internal.di.DaggerFeatureCartComponent
+import com.coffeeshop.cart.internal.di.FeatureCartComponent
 import com.coffeeshop.database.di.DaggerDatabaseComponent
 import com.coffeeshop.database.di.DatabaseComponent
 import com.coffeeshop.di.CoreDiComponent
@@ -41,6 +43,7 @@ class CoffeeShopApp : Application() {
     internal lateinit var featureCatalogComponent: FeatureCatalogComponent
     internal lateinit var featureProfileComponent: FeatureProfileComponent
     internal lateinit var featureProductDetailComponent: FeatureProductDetailComponent
+    internal lateinit var featureCartComponent: FeatureCartComponent
 
 
     override fun onCreate() {
@@ -74,6 +77,15 @@ class CoffeeShopApp : Application() {
             .build()
 
 
+        featureCartComponent = DaggerFeatureCartComponent.builder()
+            .networkComponent(networkComponent)
+            .databaseComponent(databaseComponent)
+            .coreDiComponent(coreDiComponent)
+            .jsonComponent(jsonComponent)
+            .router(coreNavigationComponent.router())
+            .logger(appDeps.logger)
+            .build()
+
         featureAuthComponent = DaggerFeatureAuthComponent.builder()
             .retrofit(networkComponent.retrofit)
             .dispatcherIo(coreDiComponent.dispatcherIO)
@@ -81,11 +93,14 @@ class CoffeeShopApp : Application() {
             .build()
 
         featureCatalogComponent = DaggerFeatureCatalogComponent.builder()
+            .getTotalPriceFromCart(featureCartComponent.getTotalPriceFromCartUseCase)
             .jsonComponent(jsonComponent)
             .networkComponent(networkComponent)
             .databaseComponent(databaseComponent)
             .coreDiComponent(coreDiComponent)
             .router(coreNavigationComponent.router())
+            .buildConfigProvider(appDeps.buildConfigProvider)
+            .logger(appDeps.logger)
             .productDetailInMemoryCache(coreCacheComponent.productDetailCache())
             .build()
 
@@ -99,9 +114,11 @@ class CoffeeShopApp : Application() {
         featureProductDetailComponent = DaggerFeatureProductDetailComponent.builder()
             .coreDiComponent(coreDiComponent)
             .router(coreNavigationComponent.router())
+            .logger(appDeps.logger)
             .productDetailInMemoryCache(coreCacheComponent.productDetailCache())
             .getProductDetailFromCacheUseCase(featureCatalogComponent.getProductDetailFromCacheUseCase)
             .removeProductDetailFromCacheUseCase(featureCatalogComponent.removeProductDetailFromCacheUseCase)
+            .addToCartUseCase(featureCartComponent.addToCartUseCase)
             .build()
     }
 }
@@ -138,5 +155,12 @@ fun Context.featureProductDetail(): FeatureProductDetailComponent {
     return when(this) {
         is CoffeeShopApp -> featureProductDetailComponent
         else -> applicationContext.featureProductDetail()
+    }
+}
+
+fun Context.featureCart(): FeatureCartComponent {
+    return when(this) {
+        is CoffeeShopApp -> featureCartComponent
+        else -> applicationContext.featureCart()
     }
 }

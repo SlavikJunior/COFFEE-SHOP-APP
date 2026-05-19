@@ -6,6 +6,7 @@
     <!-- Content descriptions — топ-бар -->
     <string name="cd_profile">Профиль</string>
     <string name="cd_close">Закрыть</string>
+    <string name="cd_retry">Повторить загрузку</string>
 
     <!-- Content descriptions — корзина (FAB) -->
     <string name="cd_cart">Корзина</string>
@@ -17,4 +18,8 @@
     <!-- Content descriptions — избранное -->
     <string name="cd_favourite_add">Добавить в избранное</string>
     <string name="cd_favourite_remove">Убрать из избранного</string>
+
+    <!-- Корзина -->
+    <string name="remove_product_from_cart_text">Удалить %1$s из корзины</string>
+    <string name="remove_from_cart_text">убрать</string>
 </resources>

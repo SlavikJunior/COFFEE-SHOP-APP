@@ -13,6 +13,8 @@ import com.arttttt.nav3router.Nav3Host
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.internal.navigation.loginScreenEntry
 import com.coffeeshop.auth.internal.navigation.registerScreenEntry
+import com.coffeeshop.cart.internal.navigation.cartEntry
+import com.coffeeshop.designsystem.common.CoffeeTheme
 import com.coffeeshop.product_detail.internal.navigation.productDetailScreenEntry
 import com.coffeeshop.profile.internal.navigation.profileScreenEntry
 import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
@@ -27,30 +29,36 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         coffeeShopAppComponent().inject(this)
+
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
 
         val catalogViewModelFactory = featureCatalogComponent().viewModelFactory
         val profileViewModelFactory = featureProfileComponent().viewModelFactory
         val productDetailViewModelFactory = featureProductDetail().viewModelFactory
+        val cartViewModelFactory = featureCart().viewModelFactory
 
         setContent {
-            val backStack = rememberNavBackStack(CatalogRoute())
-            Nav3Host(
-                backStack = backStack,
-                router = router,
-            ) { backStack: NavBackStack<NavKey>, onBack: () -> Unit, router: Router<Route> ->
-                NavDisplay(
+            CoffeeTheme {
+                val backStack = rememberNavBackStack(CatalogRoute())
+                Nav3Host(
                     backStack = backStack,
-                    onBack = onBack,
-                    entryProvider = entryProvider {
-                        loginScreenEntry(router)
-                        registerScreenEntry(router)
-                        catalogScreenEntry(catalogViewModelFactory)
-                        profileScreenEntry(router, profileViewModelFactory)
-                        productDetailScreenEntry(productDetailViewModelFactory)
-                    }
-                )
+                    router = router,
+                ) { backStack: NavBackStack<NavKey>, onBack: () -> Unit, router: Router<Route> ->
+                    NavDisplay(
+                        backStack = backStack,
+                        onBack = onBack,
+                        entryProvider = entryProvider {
+                            loginScreenEntry(router)
+                            registerScreenEntry(router)
+                            catalogScreenEntry(catalogViewModelFactory)
+                            profileScreenEntry(router, profileViewModelFactory)
+                            productDetailScreenEntry(productDetailViewModelFactory)
+                            cartEntry(cartViewModelFactory)
+                        }
+                    )
+                }
             }
         }
     }

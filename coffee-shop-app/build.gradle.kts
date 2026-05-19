@@ -54,6 +54,9 @@ dependencies {
     implementation(project(path = ":core:build-config:internal"))
     implementation(project(path = ":core:cache:api"))
     implementation(project(path = ":core:cache:internal"))
+    implementation(project(path = ":core:logger:api"))
+    implementation(project(path = ":core:logger:internal"))
+    implementation(project(path = ":core:design-system"))
 
     // feature deps
     implementation(project(path = ":feature:auth:api"))
@@ -64,6 +67,8 @@ dependencies {
     implementation(project(path = ":feature:profile:internal"))
     implementation(project(path = ":feature:product-detail:api"))
     implementation(project(path = ":feature:product-detail:internal"))
+    implementation(project(path = ":feature:cart:api"))
+    implementation(project(path = ":feature:cart:internal"))
 
     // nav deps
     implementation(project(path = ":core:navigation"))
