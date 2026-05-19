@@ -25,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,9 +34,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
-import com.coffeeshop.designsystem.DarkBrown
-import com.coffeeshop.designsystem.Secondary
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.auth.internal.R
+import com.coffeeshop.designsystem.common.DarkBrown
+import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.common.White
 import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.SimpleTopBar
@@ -95,7 +97,7 @@ private fun RegisterContent(
             .systemBarsPadding()
             .imePadding()
     ) {
-        SimpleTopBar(title = "Регистрация")
+        SimpleTopBar(title = stringResource(R.string.register_top_bar_text))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -103,7 +105,7 @@ private fun RegisterContent(
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = onNavigateToLogin) {
-                Text(text = "Уже есть аккаунт?", color = Secondary)
+                Text(text = stringResource(R.string.already_has_account_text), color = Secondary)
             }
         }
         Column(
@@ -124,13 +126,13 @@ private fun RegisterContent(
             val smsSent = state is RegisterUiState.EnteringCode
 
             CoffeeInputField(
-                label = "Имя",
+                label = stringResource(R.string.name_text_field),
                 value = name,
                 onValueChange = { if (!smsSent) onEvent(RegisterUiStateEvent.NameChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
             )
             CoffeeInputField(
-                label = "Номер телефона",
+                label = stringResource(R.string.phone_number_text_field),
                 value = phone,
                 onValueChange = { newValue ->
                     if (!smsSent) {
@@ -140,7 +142,7 @@ private fun RegisterContent(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardType = KeyboardType.Number,
-                prefix = "+7",
+                prefix = stringResource(R.string.russian_phone_number_prefix),
             )
 
             AnimatedVisibility(
@@ -150,8 +152,8 @@ private fun RegisterContent(
                 val codeState = state as? RegisterUiState.EnteringCode
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     CoffeeInputField(
-                        label = "Код из смс",
-                        value = codeState?.smsCode ?: "",
+                        label = stringResource(R.string.sms_code_text),
+                        value = codeState?.smsCode.orEmpty(),
                         onValueChange = { newValue ->
                             val digits = newValue.filter { it.isDigit() }.take(6)
                             onEvent(RegisterUiStateEvent.SmsCodeChanged(digits))
@@ -166,11 +168,11 @@ private fun RegisterContent(
                             onClick = { onEvent(RegisterUiStateEvent.ResendSmsClicked) },
                             modifier = Modifier.align(Alignment.Start)
                         ) {
-                            Text(text = "Отправить снова", color = Secondary, fontSize = 13.sp)
+                            Text(text = stringResource(R.string.send_again_text), color = Secondary, fontSize = 13.sp)
                         }
                     } else {
                         Text(
-                            text = "Повторная отправка через ${codeState?.timerSeconds ?: 60} с",
+                            text =  stringResource(R.string.send_again_after_text, "${codeState?.timerSeconds ?: 60} с"),
                             color = Secondary,
                             fontSize = 13.sp
                         )
@@ -181,7 +183,7 @@ private fun RegisterContent(
 
         if (state is RegisterUiState.InputData) {
             CoffeeButton(
-                text = "Отправить смс",
+                text = stringResource(R.string.send_sms_text),
                 onClick = { onEvent(RegisterUiStateEvent.SendSmsClicked) },
                 enabled = state.sendButtonEnabled,
                 modifier = Modifier

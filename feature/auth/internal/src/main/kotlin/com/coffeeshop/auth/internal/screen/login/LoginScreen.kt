@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,8 +31,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.api.presentation.navigation.RegisterRoute
-import com.coffeeshop.designsystem.Secondary
-import com.coffeeshop.designsystem.White
+import com.coffeeshop.auth.internal.R
+import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.common.White
 import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.LoadingOverlay
@@ -100,7 +102,7 @@ private fun LoginContent(
             .systemBarsPadding()
             .imePadding()
     ) {
-        SimpleTopBar(title = "Вход")
+        SimpleTopBar(title = stringResource(R.string.login_top_bar_text))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -108,7 +110,7 @@ private fun LoginContent(
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(onClick = onNavigateToRegister) {
-                Text(text = "Нет аккаунта?", color = Secondary)
+                Text(text = stringResource(R.string.no_account_text_button), color = Secondary)
             }
         }
         Column(
@@ -125,7 +127,7 @@ private fun LoginContent(
             val smsSent = state is LoginUiState.EnteringCode
 
             CoffeeInputField(
-                label = "Номер телефона",
+                label = stringResource(R.string.phone_number_text),
                 value = phone,
                 onValueChange = { newValue ->
                     if (!smsSent) {
@@ -135,7 +137,7 @@ private fun LoginContent(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardType = KeyboardType.Number,
-                prefix = "+7",
+                prefix = stringResource(R.string.russian_phone_number_prefix),
             )
 
             AnimatedVisibility(
@@ -145,7 +147,7 @@ private fun LoginContent(
                 val codeState = state as? LoginUiState.EnteringCode
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     CoffeeInputField(
-                        label = "Код из смс",
+                        label = stringResource(R.string.sms_code_text),
                         value = codeState?.smsCode ?: "",
                         onValueChange = { newValue ->
                             val digits = newValue.filter { it.isDigit() }.take(6)
@@ -161,11 +163,14 @@ private fun LoginContent(
                             onClick = { onEvent(LoginUiStateEvent.ResendSmsClicked) },
                             modifier = Modifier.align(Alignment.Start)
                         ) {
-                            Text(text = "Отправить снова", color = Secondary, fontSize = 13.sp)
+                            Text(text = stringResource(R.string.send_again_text), color = Secondary, fontSize = 13.sp)
                         }
                     } else {
                         Text(
-                            text = "Повторная отправка через ${codeState?.timerSeconds ?: 60} с",
+                            text = stringResource(
+                                R.string.send_again_after_text,
+                                codeState?.timerSeconds ?: 60
+                            ),
                             color = Secondary,
                             fontSize = 13.sp
                         )
@@ -176,7 +181,7 @@ private fun LoginContent(
 
         if (state is LoginUiState.InputPhone) {
             CoffeeButton(
-                text = "Отправить смс",
+                text = stringResource(R.string.send_sms_text),
                 onClick = { onEvent(LoginUiStateEvent.SendSmsClicked) },
                 enabled = state.sendButtonEnabled,
                 modifier = Modifier

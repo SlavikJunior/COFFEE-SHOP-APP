@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_top_bar_text">Вход</string>
+    <string name="no_account_text_button">Нет аккаунта?</string>
+    <string name="phone_number_text">Номер телефона</string>
+    <string name="russian_phone_number_prefix">+7</string>
+    <string name="sms_code_text">Код из смс</string>
+    <string name="send_again_text">Отправить снова</string>
+    <string name="send_again_after_text">Повторная отправка через %1$d с</string>
+    <string name="register_top_bar_text">Регистрация</string>
+    <string name="already_has_account_text">Уже есть аккаунт?</string>
+    <string name="name_text_field">Имя</string>
+    <string name="phone_number_text_field">Номер телефона</string>
+    <string name="send_sms_text">Отправить смс</string>
+</resources>
