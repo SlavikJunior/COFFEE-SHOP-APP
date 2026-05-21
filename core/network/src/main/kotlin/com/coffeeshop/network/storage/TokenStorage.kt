@@ -12,10 +12,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class TokenStorage
+internal class TokenStorage
 @Inject constructor(
     @ApplicationContext context: Context,
-    @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @param:DispatcherIO private val dispatcher: CoroutineDispatcher
 ) {
 
     private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
@@ -36,13 +36,19 @@ class TokenStorage
         get() = prefs.getString(REFRESH_TOKEN_KEY, null)
         set(value) = prefs.edit { putString(REFRESH_TOKEN_KEY, value) }
 
+    var userId: String?
+        get() = prefs.getString(USER_ID_KEY, null)
+        set(value) = prefs.edit { putString(USER_ID_KEY, value) }
+
     suspend fun update(
         accessToken: String,
-        refreshToken: String
+        refreshToken: String,
+        userId: Long
     ) {
         withContext(dispatcher) {
             this@TokenStorage.accessToken = accessToken
             this@TokenStorage.refreshToken = refreshToken
+            this@TokenStorage.userId = userId.toString()
         }
     }
 
@@ -52,5 +58,6 @@ class TokenStorage
         const val PREF_FILE_NAME = "auth_secure"
         const val ACCESS_TOKEN_KEY = "access_token"
         const val REFRESH_TOKEN_KEY = "refresh_token"
+        const val USER_ID_KEY = "user_id"
     }
 }

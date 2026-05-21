@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    implementation(project(path = ":core:build-config:api"))
+    api(project(path = ":core:build-config:api"))
     implementation(project(path = ":core:di"))
     implementation(project(path = ":core:json"))
     implementation(project(path = ":core:utils"))

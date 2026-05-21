@@ -5,15 +5,16 @@ import com.coffeeshop.network.TokenService
 import com.coffeeshop.network.interceptors.AuthInterceptor
 import com.coffeeshop.network.interceptors.ContentTypeAndAcceptInterceptor
 import com.coffeeshop.network.interceptors.TokenAuthenticator
+import com.coffeeshop.network.TokenRepository
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import javax.inject.Singleton
 
 @Module
 internal object NetworkModule {
@@ -66,4 +67,9 @@ internal object NetworkModule {
     @NetworkScope
     fun provideTokenService(retrofit: Retrofit): TokenService =
         retrofit.create(TokenService::class.java)
+
+    @Provides
+    @NetworkScope
+    fun provideSessionExpiredFlow(tokenRepository: TokenRepository): SharedFlow<Unit> =
+        tokenRepository.sessionExpired
 }

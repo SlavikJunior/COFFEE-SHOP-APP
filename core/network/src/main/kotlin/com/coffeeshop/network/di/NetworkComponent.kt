@@ -5,13 +5,18 @@ import com.coffeeshop.buildconfig.api.BuildConfigProvider
 import com.coffeeshop.di.CoreDiComponent
 import com.coffeeshop.di.qualifiers.ApplicationContext
 import com.coffeeshop.json.JsonComponent
+import com.coffeeshop.network.TokenRepository
 import dagger.BindsInstance
 import dagger.Component
+import kotlinx.coroutines.flow.SharedFlow
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 
 @Component(
-    modules = [NetworkModule::class],
+    modules = [
+        NetworkModule::class,
+        NetworkBindingModule::class
+    ],
     dependencies = [
         CoreDiComponent::class,
         JsonComponent::class
@@ -23,6 +28,10 @@ interface NetworkComponent {
     val retrofit: Retrofit
 
     val okHttpClient: OkHttpClient
+
+    val sessionExpiredFlow: SharedFlow<Unit>
+
+    val tokenRepository: TokenRepository
 
     @Component.Builder
     interface Builder {
