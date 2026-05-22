@@ -59,7 +59,7 @@ fun ProfileLinkRow(
             fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = 1.sp,
-            color = DarkBrown,
+            color = Secondary,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)

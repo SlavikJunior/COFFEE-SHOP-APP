@@ -17,6 +17,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,11 +32,9 @@ import com.coffeeshop.designsystem.common.Secondary
  */
 @Composable
 fun CoffeeProfileField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
+    firstLabel: String,
+    secondLabel: String,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text,
 ) {
     Column(modifier = modifier) {
         Row(
@@ -46,22 +45,20 @@ fun CoffeeProfileField(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = label.uppercase(),
+                text = firstLabel.uppercase(),
                 fontSize = 11.sp,
+                textAlign = TextAlign.Start,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 1.sp,
                 color = Secondary,
             )
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    color = DarkBrown,
-                    fontWeight = FontWeight.Normal,
-                ),
-                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                singleLine = true,
+            Text(
+                text = secondLabel.uppercase(),
+                textAlign = TextAlign.End,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 1.sp,
+                color = Secondary,
             )
         }
         HorizontalDivider(color = Secondary.copy(alpha = 0.2f))
@@ -71,9 +68,8 @@ fun CoffeeProfileField(
 @Preview(showBackground = true)
 @Composable
 private fun CoffeeProfileFieldPreview() = CoffeeProfileField(
-    label = "Имя",
-    value = "Вячеслав",
-    onValueChange = {},
+    firstLabel = "Имя",
+    secondLabel = "Вячеслав"
 )
 
 /**

@@ -26,9 +26,9 @@ import com.coffeeshop.designsystem.common.Secondary
 
 @Composable
 fun RetryOverlay(
-    onRetry: () -> Unit,
     alfa: Float = 0.35f,
-    text: String? = null
+    text: String? = null,
+    onRetry: () -> Unit,
 ) {
     Box(
         modifier = Modifier

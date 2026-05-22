@@ -95,14 +95,12 @@ private fun DesignSystemShowcase() {
                     onValueChange = {},
                 )
                 CoffeeProfileField(
-                    label = "Имя",
-                    value = "Вячеслав",
-                    onValueChange = {},
+                    firstLabel = "Имя",
+                    secondLabel = "Вячеслав"
                 )
                 CoffeeProfileField(
-                    label = "Почта",
-                    value = "user@example.com",
-                    onValueChange = {},
+                    firstLabel = "Почта",
+                    secondLabel = "user@example.com"
                 )
             }
 
