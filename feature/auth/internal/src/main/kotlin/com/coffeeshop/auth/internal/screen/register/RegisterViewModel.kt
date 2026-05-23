@@ -1,24 +1,16 @@
 package com.coffeeshop.auth.internal.screen.register
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import android.app.Activity
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.coffeeshop.auth.api.domain.usecase.RegisterByPhoneNumberAndNameAndSmsCodeUseCase
-import com.coffeeshop.auth.api.domain.usecase.SendSmsCodeByPhoneNumberUseCase
+import com.coffeeshop.auth.api.domain.usecase.RegisterByFirebaseIdTokenAndNameUseCase
+import com.coffeeshop.auth.internal.data.firebase.FirebasePhoneAuthManager
 import com.coffeeshop.auth.internal.screen.vmfactory.BaseAuthViewModel
-import com.coffeeshop.auth.internal.screen.vmfactory.SavedStateHandleFactory
-import com.coffeeshop.common.model.auth.AuthStatus
 import com.coffeeshop.common.model.auth.NameModel
-import com.coffeeshop.common.model.auth.PhoneNumberModel
-import com.coffeeshop.common.model.auth.SmsCodeModel
 import com.coffeeshop.common.result.Result
 import com.coffeeshop.utils.validateName
+import retrofit2.HttpException
 import com.coffeeshop.utils.validateRussianPhoneNumberBy_E_164
-import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -29,7 +21,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.reflect.KClass
+import javax.inject.Inject
+
+internal enum class RegisterError {
+    SmsSendFailed, WrongCode, AlreadyRegistered, ServerError, NetworkError
+}
 
 internal sealed interface RegisterUiState {
 
@@ -62,15 +58,14 @@ internal sealed interface RegisterUiStateEvent {
     data class NameChanged(val name: String) : RegisterUiStateEvent
     data class PhoneChanged(val phone: String) : RegisterUiStateEvent
     data class SmsCodeChanged(val smsCode: String) : RegisterUiStateEvent
-    data object SendSmsClicked : RegisterUiStateEvent
-    data object ResendSmsClicked : RegisterUiStateEvent
+    data class SendSmsClicked(val activity: Activity) : RegisterUiStateEvent
+    data class ResendSmsClicked(val activity: Activity) : RegisterUiStateEvent
 }
 
 internal class RegisterViewModel
-@AssistedInject constructor(
-    private val sendSmsCodeByPhoneNumber: SendSmsCodeByPhoneNumberUseCase,
-    private val registerByPhoneNumberAndNameAndSmsCode: RegisterByPhoneNumberAndNameAndSmsCodeUseCase,
-    @Assisted private val savedStateHandle: SavedStateHandle
+@Inject constructor(
+    private val firebasePhoneAuthManager: FirebasePhoneAuthManager,
+    private val registerByFirebaseIdTokenAndName: RegisterByFirebaseIdTokenAndNameUseCase
 ) : BaseAuthViewModel() {
 
     private val scope = viewModelScope
@@ -87,13 +82,20 @@ internal class RegisterViewModel
     private val _navigateToHome = Channel<Unit>(Channel.BUFFERED)
     val navigateToHome = _navigateToHome.receiveAsFlow()
 
+    private val _error = Channel<RegisterError>(Channel.BUFFERED)
+    val error = _error.receiveAsFlow()
+
     fun reduce(event: RegisterUiStateEvent) {
         when (event) {
             is RegisterUiStateEvent.NameChanged -> onNameChanged(event)
             is RegisterUiStateEvent.PhoneChanged -> onPhoneChanged(event)
             is RegisterUiStateEvent.SmsCodeChanged -> onSmsCodeChanged(event)
-            RegisterUiStateEvent.SendSmsClicked -> onSendSmsClicked()
-            RegisterUiStateEvent.ResendSmsClicked -> onSendSmsClicked()
+            is RegisterUiStateEvent.SendSmsClicked -> onSendSmsClicked(event)
+            is RegisterUiStateEvent.ResendSmsClicked -> onSendSmsClicked(
+                RegisterUiStateEvent.SendSmsClicked(
+                    event.activity
+                )
+            )
         }
     }
 
@@ -126,7 +128,7 @@ internal class RegisterViewModel
         if (newCode.length == 6) registerWithCode(newCode)
     }
 
-    private fun onSendSmsClicked() {
+    private fun onSendSmsClicked(event: RegisterUiStateEvent.SendSmsClicked) {
         if (!isSendEnabled()) return
         _uiState.update { state ->
             when (state) {
@@ -134,45 +136,75 @@ internal class RegisterViewModel
                 is RegisterUiState.EnteringCode -> state.copy(isLoading = true, resendEnabled = false)
             }
         }
-        scope.launch {
-            when (sendSmsCodeByPhoneNumber(PhoneNumberModel("+7$currentPhone"))) {
-                is Result.Success -> {
-                    _uiState.update {
-                        RegisterUiState.EnteringCode(name = currentName, phone = currentPhone)
-                    }
-                    startTimer()
+        firebasePhoneAuthManager.sendVerificationCode(
+            phoneNumber = "$RUSSIAN_PHONE_NUMBER_PREFIX$currentPhone",
+            activity = event.activity,
+            onCodeSent = {
+                _uiState.update {
+                    RegisterUiState.EnteringCode(name = currentName, phone = currentPhone)
                 }
-                is Result.Error -> _uiState.update {
+                startTimer()
+            },
+            onAutoVerified = { idToken ->
+                scope.launch { registerWithIdToken(idToken) }
+            },
+            onError = {
+                _uiState.update {
                     RegisterUiState.InputData(
                         name = currentName,
                         phone = currentPhone,
                         sendButtonEnabled = isSendEnabled()
                     )
                 }
+                scope.launch { _error.send(RegisterError.SmsSendFailed) }
+            }
+        )
+    }
+
+    private fun registerWithCode(rawCode: String) {
+        val state = _uiState.value as? RegisterUiState.EnteringCode ?: return
+        _uiState.update { state.copy(isLoading = true) }
+        scope.launch {
+            when (val result = firebasePhoneAuthManager.signInWithCode(rawCode)) {
+                is Result.Success -> registerWithIdToken(result.data)
+                is Result.Error -> {
+                    _error.send(RegisterError.WrongCode)
+                    _uiState.update { s ->
+                        (s as? RegisterUiState.EnteringCode)?.copy(
+                            isLoading = false,
+                            isCodeError = true,
+                            smsCode = ""
+                        ) ?: s
+                    }
+                }
                 Result.Loading -> Unit
             }
         }
     }
 
-    private fun registerWithCode(code: String) {
-        val state = _uiState.value as? RegisterUiState.EnteringCode ?: return
-        _uiState.update { state.copy(isLoading = true) }
-        scope.launch {
-            when (registerByPhoneNumberAndNameAndSmsCode(
-                phoneNumber = PhoneNumberModel("+7$currentPhone"),
-                name = NameModel(currentName),
-                smsCode = SmsCodeModel(code)
-            )) {
-                is Result.Success -> _navigateToHome.send(Unit)
-                is Result.Error -> _uiState.update { s ->
+    private suspend fun registerWithIdToken(idToken: String) {
+        when (val result = registerByFirebaseIdTokenAndName(idToken = idToken, name = NameModel(currentName))) {
+            is Result.Success -> {
+                _navigateToHome.send(Unit)
+                _uiState.update { RegisterUiState.InputData() }
+            }
+            is Result.Error -> {
+                val httpCode = (result.exception as? HttpException)?.code()
+                val registerError = when (httpCode) {
+                    409 -> RegisterError.AlreadyRegistered
+                    in 500..599 -> RegisterError.ServerError
+                    else -> RegisterError.NetworkError
+                }
+                _error.send(registerError)
+                _uiState.update { s ->
                     (s as? RegisterUiState.EnteringCode)?.copy(
                         isLoading = false,
-                        isCodeError = true,
+                        isCodeError = false,
                         smsCode = ""
                     ) ?: s
                 }
-                Result.Loading -> Unit
             }
+            Result.Loading -> Unit
         }
     }
 
@@ -184,7 +216,8 @@ internal class RegisterViewModel
                 delay(1000)
                 remaining--
                 _uiState.update { state ->
-                    (state as? RegisterUiState.EnteringCode)?.copy(timerSeconds = remaining) ?: state
+                    (state as? RegisterUiState.EnteringCode)?.copy(timerSeconds = remaining)
+                        ?: state
                 }
             }
             _uiState.update { state ->
@@ -194,7 +227,7 @@ internal class RegisterViewModel
     }
 
     private fun isSendEnabled(): Boolean =
-        validateRussianPhoneNumberBy_E_164("+7$currentPhone") && validateName(currentName)
+        validateRussianPhoneNumberBy_E_164("$RUSSIAN_PHONE_NUMBER_PREFIX$currentPhone") && validateName(currentName)
 
     override fun onCleared() {
         timerJob?.cancel()
@@ -202,29 +235,8 @@ internal class RegisterViewModel
         super.onCleared()
     }
 
-    @AssistedFactory
-    interface Factory : SavedStateHandleFactory<RegisterViewModel>
-
-    companion object {
-        val previewFactory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
-                @Suppress("UNCHECKED_CAST")
-                return RegisterViewModel(
-                    sendSmsCodeByPhoneNumber = object : SendSmsCodeByPhoneNumberUseCase {
-                        override suspend fun invoke(phoneNumber: PhoneNumberModel) =
-                            Result.Success(AuthStatus.WaitSms)
-                    },
-                    registerByPhoneNumberAndNameAndSmsCode = object :
-                        RegisterByPhoneNumberAndNameAndSmsCodeUseCase {
-                        override suspend fun invoke(
-                            phoneNumber: PhoneNumberModel,
-                            name: NameModel,
-                            smsCode: SmsCodeModel
-                        ) = Result.Success(AuthStatus.User)
-                    },
-                    savedStateHandle = SavedStateHandle()
-                ) as T
-            }
-        }
+    private companion object {
+        const val TAG = "RegisterViewModel"
+        const val RUSSIAN_PHONE_NUMBER_PREFIX = "+7"
     }
 }

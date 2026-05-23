@@ -3,88 +3,60 @@ package com.coffeeshop.auth.internal.data.repository
 import android.util.Log
 import com.coffeeshop.auth.api.domain.repository.AuthRepository
 import com.coffeeshop.auth.internal.data.service.AuthService
+import com.coffeeshop.auth.internal.di.AuthScope
 import com.coffeeshop.common.model.auth.AuthStatus
-import com.coffeeshop.common.model.auth.NameModel
-import com.coffeeshop.common.model.auth.PhoneNumberModel
-import com.coffeeshop.common.model.auth.SmsCodeModel
 import com.coffeeshop.common.result.Result
-import com.coffeeshop.contracts.RegisterRequest
-import com.coffeeshop.contracts.SendSmsRequest
-import com.coffeeshop.contracts.VerifyOtpRequest
+import com.coffeeshop.contracts.FirebaseRegisterRequest
+import com.coffeeshop.contracts.FirebaseVerifyRequest
 import com.coffeeshop.di.qualifiers.DispatcherIO
-import com.coffeeshop.network.storage.TokenStorage
+import com.coffeeshop.network.TokenRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import javax.inject.Inject
 
-class AuthRepositoryImpl
+@AuthScope
+internal class AuthRepositoryImpl
 @Inject constructor(
     private val service: AuthService,
-    private val tokenStorage: TokenStorage,
-    @param:DispatcherIO private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val tokenRepository: TokenRepository,
+    @param:DispatcherIO private val dispatcher: CoroutineDispatcher,
 ) : AuthRepository {
 
-    override suspend fun sendSms(phoneNumber: PhoneNumberModel): Result<AuthStatus> =
+    override suspend fun verifyFirebaseToken(idToken: String): Result<Boolean> =
         withContext(dispatcher) {
             try {
-                service.sendSms(SendSmsRequest(phone = phoneNumber.value))
-                Result.Success(AuthStatus.WaitSms)
+                val tokenPair = service.verifyFirebaseToken(FirebaseVerifyRequest(idToken))
+                tokenRepository.accessToken = tokenPair.accessToken
+                tokenRepository.refreshToken = tokenPair.refreshToken
+                tokenRepository.userId = tokenPair.userId.toString()
+                Result.Success(true)
+            } catch (e: HttpException) {
+                if (e.code() == 404) Result.Success(false)
+                else Result.Error(e)
             } catch (cause: Throwable) {
-                Log.e(TAG, "sendSms error: $cause")
+                Log.e(TAG, "verifyFirebaseToken error: $cause")
                 Result.Error(cause)
             }
         }
 
-    override suspend fun register(
-        name: NameModel,
-        phoneNumber: PhoneNumberModel,
-        smsCode: SmsCodeModel
-    ): Result<AuthStatus> = withContext(dispatcher) {
-        try {
-            val tokenPair = service.register(
-                RegisterRequest(
-                    name = name.value,
-                    phone = phoneNumber.value,
-                    code = smsCode.value
-                )
-            )
-            tokenStorage.accessToken = tokenPair.accessToken
-            tokenStorage.refreshToken = tokenPair.refreshToken
-            Result.Success(AuthStatus.User)
-        } catch (cause: Throwable) {
-            Log.e(TAG, "register error: $cause")
-            Result.Error(cause)
+    override suspend fun registerWithFirebase(idToken: String, name: String): Result<AuthStatus> =
+        withContext(dispatcher) {
+            try {
+                val tokenPair = service.registerWithFirebase(FirebaseRegisterRequest(idToken, name))
+                tokenRepository.accessToken = tokenPair.accessToken
+                tokenRepository.refreshToken = tokenPair.refreshToken
+                tokenRepository.userId = tokenPair.userId.toString()
+                Result.Success(AuthStatus.User)
+            } catch (cause: Throwable) {
+                Log.e(TAG, "registerWithFirebase error: $cause")
+                Result.Error(cause)
+            }
         }
-    }
 
-    override suspend fun verify(
-        phoneNumber: PhoneNumberModel,
-        smsCode: SmsCodeModel
-    ): Result<Boolean> = withContext(dispatcher) {
-        try {
-            val tokenPair = service.verify(
-                VerifyOtpRequest(
-                    phone = phoneNumber.value,
-                    code = smsCode.value
-                )
-            )
-            tokenStorage.accessToken = tokenPair.accessToken
-            tokenStorage.refreshToken = tokenPair.refreshToken
-            Result.Success(true)
-        } catch (cause: Throwable) {
-            Log.e(TAG, "verify error: $cause")
-            Result.Error(cause)
-        }
-    }
+    override suspend fun sendNewToken(token: String) {}
 
-    override suspend fun loginByPhoneNumber(phoneNumber: PhoneNumberModel): Result<AuthStatus> =
-        sendSms(phoneNumber)
-
-    override suspend fun logoutByPhoneNumber(phoneNumber: PhoneNumberModel): Result<AuthStatus> {
-        tokenStorage.clear()
-        return Result.Success(AuthStatus.Guest)
-    }
+    override suspend fun deleteToken(token: String) {}
 
     private companion object {
         const val TAG = "AuthRepository"

@@ -62,6 +62,9 @@ dependencies {
     implementation(libs.navigation3.ui)
     implementation(libs.navigation3.router)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+
     // bundles
     implementation(libs.bundles.lifecycle.viewmodel)
 

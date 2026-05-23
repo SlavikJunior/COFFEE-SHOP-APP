@@ -1,5 +1,8 @@
 package com.coffeeshop.auth.internal.screen.login
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -22,9 +25,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
@@ -38,27 +41,44 @@ import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.LoadingOverlay
 import com.coffeeshop.designsystem.components.SimpleTopBar
+import com.coffeeshop.di.qualifiers.LoginViewModelFactory
 import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
 import com.coffeshop.navigation.Route
 
 @Composable
 fun LoginScreen(
-    router: Router<Route>
+    router: Router<Route>,
+    @LoginViewModelFactory viewModelFactory: ViewModelProvider.Factory
 ) = LoginScreenInternal(
-    router = router
+    router = router, viewModelFactory
 )
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 internal fun LoginScreenInternal(
     router: Router<Route>,
-    viewModelFactory: ViewModelProvider.Factory = LoginViewModel.previewFactory,
-    viewModel: LoginViewModel = viewModel(factory = viewModelFactory)
+    @LoginViewModelFactory viewModelFactory: ViewModelProvider.Factory
 ) {
+    val viewModel = viewModel<LoginViewModel>(factory = viewModelFactory)
     val uiState = viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.navigateToHome.collect {
-            router.replaceCurrent(CatalogRoute(isLoggedIn = true))
+            router.replaceStack(CatalogRoute(isLoggedIn = true))
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.error.collect { error ->
+            val msg = when (error) {
+                LoginError.SmsSendFailed -> context.getString(R.string.error_sms_send_failed)
+                LoginError.WrongCode -> context.getString(R.string.error_wrong_code)
+                LoginError.AccountNotFound -> context.getString(R.string.error_account_not_found)
+                LoginError.ServerError -> context.getString(R.string.error_server)
+                LoginError.NetworkError -> context.getString(R.string.error_network)
+            }
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -83,12 +103,7 @@ internal fun LoginScreenInternal(
     }
 }
 
-private val LoginUiState.isLoading: Boolean
-    get() = when (this) {
-        is LoginUiState.InputPhone -> isLoading
-        is LoginUiState.EnteringCode -> isLoading
-    }
-
+@SuppressLint("ContextCastToActivity")
 @Composable
 private fun LoginContent(
     state: LoginUiState,
@@ -159,8 +174,12 @@ private fun LoginContent(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     if (codeState?.resendEnabled == true) {
+                        val activity = LocalContext.current as Activity
+
                         TextButton(
-                            onClick = { onEvent(LoginUiStateEvent.ResendSmsClicked) },
+                            onClick = { onEvent(LoginUiStateEvent.ResendSmsClicked(
+                                activity = activity
+                            )) },
                             modifier = Modifier.align(Alignment.Start)
                         ) {
                             Text(text = stringResource(R.string.send_again_text), color = Secondary, fontSize = 13.sp)
@@ -180,9 +199,13 @@ private fun LoginContent(
         }
 
         if (state is LoginUiState.InputPhone) {
+            val activity = LocalContext.current as Activity
+
             CoffeeButton(
                 text = stringResource(R.string.send_sms_text),
-                onClick = { onEvent(LoginUiStateEvent.SendSmsClicked) },
+                onClick = { onEvent(LoginUiStateEvent.SendSmsClicked(
+                    activity = activity
+                )) },
                 enabled = state.sendButtonEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,7 +216,3 @@ private fun LoginContent(
         }
     }
 }
-
-@Preview
-@Composable
-fun LoginScreenPreview() = LoginScreen(router = Router())

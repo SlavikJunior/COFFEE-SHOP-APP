@@ -1,25 +1,16 @@
 package com.coffeeshop.auth.internal.data.service
 
-import com.coffeeshop.contracts.RegisterRequest
-import com.coffeeshop.contracts.SendSmsRequest
+import com.coffeeshop.contracts.FirebaseRegisterRequest
+import com.coffeeshop.contracts.FirebaseVerifyRequest
 import com.coffeeshop.contracts.TokenPair
-import com.coffeeshop.contracts.VerifyOtpRequest
 import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthService {
 
-    @POST("register")
-    suspend fun register(
-        @Body request: RegisterRequest
-    ): TokenPair
+    @POST("api/auth/firebase/verify")
+    suspend fun verifyFirebaseToken(@Body request: FirebaseVerifyRequest): TokenPair
 
-    @POST("send-sms")
-    suspend fun sendSms(@Body request: SendSmsRequest)
-
-    @POST("verify")
-    suspend fun verify(
-        @Body request: VerifyOtpRequest
-    ): TokenPair
-
+    @POST("api/auth/firebase/register")
+    suspend fun registerWithFirebase(@Body request: FirebaseRegisterRequest): TokenPair
 }

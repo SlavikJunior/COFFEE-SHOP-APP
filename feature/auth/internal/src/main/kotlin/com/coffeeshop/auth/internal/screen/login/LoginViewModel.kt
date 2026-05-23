@@ -1,23 +1,14 @@
 package com.coffeeshop.auth.internal.screen.login
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import android.app.Activity
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.coffeeshop.auth.api.domain.usecase.SendSmsCodeByPhoneNumberUseCase
-import com.coffeeshop.auth.api.domain.usecase.VerifySmsCodeByPhoneNumberUseCase
+import com.coffeeshop.auth.api.domain.usecase.VerifyFirebaseTokenUseCase
+import com.coffeeshop.auth.internal.data.firebase.FirebasePhoneAuthManager
 import com.coffeeshop.auth.internal.screen.vmfactory.BaseAuthViewModel
-import com.coffeeshop.auth.internal.screen.vmfactory.SavedStateHandleFactory
-import com.coffeeshop.common.model.auth.AuthStatus
-import com.coffeeshop.common.model.auth.PhoneNumberModel
-import com.coffeeshop.common.model.auth.SmsCodeModel
 import com.coffeeshop.common.result.Result
 import com.coffeeshop.utils.validateRussianPhoneNumberBy_E_164
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
+import retrofit2.HttpException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -28,14 +19,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.reflect.KClass
+import javax.inject.Inject
+
+internal enum class LoginError {
+    SmsSendFailed, WrongCode, AccountNotFound, ServerError, NetworkError
+}
 
 internal sealed interface LoginUiState {
+
+    val isLoading: Boolean
 
     data class InputPhone(
         val phone: String = "",
         val sendButtonEnabled: Boolean = false,
-        val isLoading: Boolean = false
+        override val isLoading: Boolean = false
     ) : LoginUiState
 
     data class EnteringCode(
@@ -43,7 +40,7 @@ internal sealed interface LoginUiState {
         val smsCode: String = "",
         val timerSeconds: Int = 60,
         val isCodeError: Boolean = false,
-        val isLoading: Boolean = false,
+        override val isLoading: Boolean = false,
         val resendEnabled: Boolean = false
     ) : LoginUiState
 }
@@ -51,15 +48,14 @@ internal sealed interface LoginUiState {
 internal sealed interface LoginUiStateEvent {
     data class PhoneChanged(val phone: String) : LoginUiStateEvent
     data class SmsCodeChanged(val smsCode: String) : LoginUiStateEvent
-    data object SendSmsClicked : LoginUiStateEvent
-    data object ResendSmsClicked : LoginUiStateEvent
+    data class SendSmsClicked(val activity: Activity) : LoginUiStateEvent
+    data class ResendSmsClicked(val activity: Activity) : LoginUiStateEvent
 }
 
 internal class LoginViewModel
-@AssistedInject constructor(
-    private val sendSmsCodeByPhoneNumber: SendSmsCodeByPhoneNumberUseCase,
-    private val verifySmsCodeByPhoneNumber: VerifySmsCodeByPhoneNumberUseCase,
-    @Assisted private val savedStateHandle: SavedStateHandle
+@Inject constructor(
+    private val firebasePhoneAuthManager: FirebasePhoneAuthManager,
+    private val verifySmsCodeByPhoneNumber: VerifyFirebaseTokenUseCase
 ) : BaseAuthViewModel() {
 
     private val scope = viewModelScope
@@ -74,12 +70,19 @@ internal class LoginViewModel
     private val _navigateToHome = Channel<Unit>(Channel.BUFFERED)
     val navigateToHome: Flow<Unit> = _navigateToHome.receiveAsFlow()
 
+    private val _error = Channel<LoginError>(Channel.BUFFERED)
+    val error = _error.receiveAsFlow()
+
     fun reduce(event: LoginUiStateEvent) {
         when (event) {
             is LoginUiStateEvent.PhoneChanged -> onPhoneChanged(event)
             is LoginUiStateEvent.SmsCodeChanged -> onSmsCodeChanged(event)
-            LoginUiStateEvent.SendSmsClicked -> onSendSmsClicked()
-            LoginUiStateEvent.ResendSmsClicked -> onSendSmsClicked()
+            is LoginUiStateEvent.SendSmsClicked -> onSendSmsClicked(event)
+            is LoginUiStateEvent.ResendSmsClicked -> onSendSmsClicked(
+                LoginUiStateEvent.SendSmsClicked(
+                    event.activity
+                )
+            )
         }
     }
 
@@ -88,7 +91,7 @@ internal class LoginViewModel
         _uiState.update {
             LoginUiState.InputPhone(
                 phone = currentPhone,
-                sendButtonEnabled = validateRussianPhoneNumberBy_E_164("+7$currentPhone")
+                sendButtonEnabled = validateRussianPhoneNumberBy_E_164("$RUSSIAN_PHONE_NUMBER_PREFIX$currentPhone")
             )
         }
     }
@@ -100,49 +103,84 @@ internal class LoginViewModel
         if (newCode.length == 6) verifyCode(newCode)
     }
 
-    private fun onSendSmsClicked() {
-        if (!validateRussianPhoneNumberBy_E_164("+7$currentPhone")) return
+    private fun onSendSmsClicked(event: LoginUiStateEvent.SendSmsClicked) {
+        if (!validateRussianPhoneNumberBy_E_164("$RUSSIAN_PHONE_NUMBER_PREFIX$currentPhone")) return
         _uiState.update { state ->
             when (state) {
                 is LoginUiState.InputPhone -> state.copy(isLoading = true)
                 is LoginUiState.EnteringCode -> state.copy(isLoading = true, resendEnabled = false)
             }
         }
-        scope.launch {
-            when (sendSmsCodeByPhoneNumber(PhoneNumberModel("+7$currentPhone"))) {
-                is Result.Success -> {
-                    _uiState.update { LoginUiState.EnteringCode(phone = currentPhone) }
-                    startTimer()
+        firebasePhoneAuthManager.sendVerificationCode(
+            phoneNumber = "$RUSSIAN_PHONE_NUMBER_PREFIX$currentPhone",
+            activity = event.activity,
+            onCodeSent = {
+                _uiState.update { LoginUiState.EnteringCode(phone = currentPhone) }
+                startTimer()
+            },
+            onAutoVerified = { idToken ->
+                scope.launch { verifyWithIdToken(idToken) }
+            },
+            onError = {
+                _uiState.update {
+                    LoginUiState.InputPhone(phone = currentPhone, sendButtonEnabled = true)
                 }
-                is Result.Error -> _uiState.update {
-                    LoginUiState.InputPhone(
-                        phone = currentPhone,
-                        sendButtonEnabled = true
-                    )
+                scope.launch { _error.send(LoginError.SmsSendFailed) }
+            }
+        )
+    }
+
+    private fun verifyCode(rawCode: String) {
+        val state = _uiState.value as? LoginUiState.EnteringCode ?: return
+        _uiState.update { state.copy(isLoading = true) }
+        scope.launch {
+            when (val result = firebasePhoneAuthManager.signInWithCode(rawCode)) {
+                is Result.Success -> verifyWithIdToken(result.data)
+                is Result.Error -> {
+                    _error.send(LoginError.WrongCode)
+                    _uiState.update { s ->
+                        (s as? LoginUiState.EnteringCode)?.copy(
+                            isLoading = false,
+                            isCodeError = true,
+                            smsCode = ""
+                        ) ?: s
+                    }
                 }
                 Result.Loading -> Unit
             }
         }
     }
 
-    private fun verifyCode(code: String) {
-        val state = _uiState.value as? LoginUiState.EnteringCode ?: return
-        _uiState.update { state.copy(isLoading = true) }
-        scope.launch {
-            when (verifySmsCodeByPhoneNumber(
-                phoneNumber = PhoneNumberModel("+7$currentPhone"),
-                smsCode = SmsCodeModel(code)
-            )) {
-                is Result.Success -> _navigateToHome.send(Unit)
-                is Result.Error -> _uiState.update { s ->
+    private suspend fun verifyWithIdToken(idToken: String) {
+        when (val result = verifySmsCodeByPhoneNumber(idToken)) {
+            is Result.Success -> {
+                if (result.data) {
+                    _navigateToHome.send(Unit)
+                    _uiState.update { LoginUiState.InputPhone() }
+                } else {
+                    _error.send(LoginError.AccountNotFound)
+                    _uiState.update { s ->
+                        (s as? LoginUiState.EnteringCode)?.copy(
+                            isLoading = false,
+                            isCodeError = false,
+                            smsCode = ""
+                        ) ?: LoginUiState.InputPhone(phone = currentPhone, sendButtonEnabled = true)
+                    }
+                }
+            }
+            is Result.Error -> {
+                val loginError = if ((result.exception as? HttpException)?.code() in 500..599)
+                    LoginError.ServerError else LoginError.NetworkError
+                _error.send(loginError)
+                _uiState.update { s ->
                     (s as? LoginUiState.EnteringCode)?.copy(
                         isLoading = false,
-                        isCodeError = true,
+                        isCodeError = false,
                         smsCode = ""
                     ) ?: s
                 }
-                Result.Loading -> Unit
             }
+            Result.Loading -> Unit
         }
     }
 
@@ -169,27 +207,8 @@ internal class LoginViewModel
         super.onCleared()
     }
 
-    @AssistedFactory
-    interface Factory : SavedStateHandleFactory<LoginViewModel>
-
-    companion object {
-        val previewFactory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T {
-                @Suppress("UNCHECKED_CAST")
-                return LoginViewModel(
-                    sendSmsCodeByPhoneNumber = object : SendSmsCodeByPhoneNumberUseCase {
-                        override suspend fun invoke(phoneNumber: PhoneNumberModel) =
-                            Result.Success(AuthStatus.WaitSms)
-                    },
-                    verifySmsCodeByPhoneNumber = object : VerifySmsCodeByPhoneNumberUseCase {
-                        override suspend fun invoke(
-                            phoneNumber: PhoneNumberModel,
-                            smsCode: SmsCodeModel
-                        ) = Result.Success(false)
-                    },
-                    savedStateHandle = SavedStateHandle()
-                ) as T
-            }
-        }
+    private companion object {
+        const val TAG = "LoginViewModel"
+        const val RUSSIAN_PHONE_NUMBER_PREFIX = "+7"
     }
 }

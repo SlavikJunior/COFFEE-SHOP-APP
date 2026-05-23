@@ -12,4 +12,10 @@
     <string name="name_text_field">Имя</string>
     <string name="phone_number_text_field">Номер телефона</string>
     <string name="send_sms_text">Отправить смс</string>
+    <string name="error_sms_send_failed">Не удалось отправить SMS. Попробуйте ещё раз.</string>
+    <string name="error_wrong_code">Неверный код подтверждения</string>
+    <string name="error_account_not_found">Аккаунт с этим номером не найден</string>
+    <string name="error_phone_already_registered">Этот номер уже зарегистрирован</string>
+    <string name="error_server">Ошибка сервера. Попробуйте позже.</string>
+    <string name="error_network">Ошибка сети. Проверьте подключение.</string>
 </resources>

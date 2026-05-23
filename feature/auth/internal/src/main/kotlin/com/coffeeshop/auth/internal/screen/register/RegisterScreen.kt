@@ -1,5 +1,8 @@
 package com.coffeeshop.auth.internal.screen.register
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -14,9 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,10 +25,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
@@ -35,31 +35,42 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arttttt.nav3router.Router
 import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
 import com.coffeeshop.auth.internal.R
-import com.coffeeshop.designsystem.common.DarkBrown
 import com.coffeeshop.designsystem.common.Secondary
 import com.coffeeshop.designsystem.common.White
 import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeInputField
+import com.coffeeshop.designsystem.components.LoadingOverlay
 import com.coffeeshop.designsystem.components.SimpleTopBar
+import com.coffeeshop.di.qualifiers.RegisterViewModelFactory
 import com.coffeshop.catalog.api.presentation.navigation.CatalogRoute
 import com.coffeshop.navigation.Route
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun RegisterScreen(
+internal fun RegisterScreen(
     router: Router<Route>,
-) = RegisterScreenInternal(router = router)
-
-@Composable
-private fun RegisterScreenInternal(
-    router: Router<Route>,
-    viewModelFactory: ViewModelProvider.Factory = RegisterViewModel.previewFactory,
-    viewModel: RegisterViewModel = viewModel(factory = viewModelFactory)
+    @RegisterViewModelFactory viewModelFactory: ViewModelProvider.Factory
 ) {
+    val viewModel = viewModel<RegisterViewModel>(factory = viewModelFactory)
     val uiState = viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.navigateToHome.collect {
-            router.replaceCurrent(CatalogRoute(isLoggedIn = true))
+            router.replaceStack(CatalogRoute(isLoggedIn = true))
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.error.collect { error ->
+            val msg = when (error) {
+                RegisterError.SmsSendFailed -> context.getString(R.string.error_sms_send_failed)
+                RegisterError.WrongCode -> context.getString(R.string.error_wrong_code)
+                RegisterError.AlreadyRegistered -> context.getString(R.string.error_phone_already_registered)
+                RegisterError.ServerError -> context.getString(R.string.error_server)
+                RegisterError.NetworkError -> context.getString(R.string.error_network)
+            }
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -84,6 +95,7 @@ private fun RegisterScreenInternal(
     }
 }
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 private fun RegisterContent(
     state: RegisterUiState,
@@ -164,15 +176,17 @@ private fun RegisterContent(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     if (codeState?.resendEnabled == true) {
+                        val activity = LocalContext.current as Activity
+
                         TextButton(
-                            onClick = { onEvent(RegisterUiStateEvent.ResendSmsClicked) },
+                            onClick = { onEvent(RegisterUiStateEvent.ResendSmsClicked(activity = activity)) },
                             modifier = Modifier.align(Alignment.Start)
                         ) {
                             Text(text = stringResource(R.string.send_again_text), color = Secondary, fontSize = 13.sp)
                         }
                     } else {
                         Text(
-                            text =  stringResource(R.string.send_again_after_text, "${codeState?.timerSeconds ?: 60} с"),
+                            text =  stringResource(R.string.send_again_after_text, codeState?.timerSeconds ?: 60),
                             color = Secondary,
                             fontSize = 13.sp
                         )
@@ -182,9 +196,11 @@ private fun RegisterContent(
         }
 
         if (state is RegisterUiState.InputData) {
+            val activity = LocalContext.current as Activity
+
             CoffeeButton(
                 text = stringResource(R.string.send_sms_text),
-                onClick = { onEvent(RegisterUiStateEvent.SendSmsClicked) },
+                onClick = { onEvent(RegisterUiStateEvent.SendSmsClicked(activity = activity)) },
                 enabled = state.sendButtonEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,24 +211,3 @@ private fun RegisterContent(
         }
     }
 }
-
-@Composable
-private fun LoadingOverlay() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.35f)),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(56.dp),
-            color = DarkBrown
-        )
-    }
-}
-
-@Preview
-@Composable
-fun RegisterScreenPreview() = RegisterScreen(
-    router = Router()
-)
