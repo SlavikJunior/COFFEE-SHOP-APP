@@ -53,3 +53,5 @@ fun <K, V> Map<K, V>.getOrThrow(key: K, message: String? = null): V {
 fun Collection<MenuItemSummaryDto>.resolvePhotoUrls(baseUrl: String): List<MenuItemSummaryDto> {
     return this.map { it.copy(photoUrl = baseUrl + it.photoUrl) }
 }
+
+fun String?.orDefault(default: String): String = this ?: default

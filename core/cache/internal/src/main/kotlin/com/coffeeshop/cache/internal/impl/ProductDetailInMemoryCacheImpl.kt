@@ -10,6 +10,8 @@ import com.coffeeshop.common.result.asSuccessResult
 import com.coffeeshop.logger.api.CoffeeshopLogger
 import com.coffeeshop.logger.api.tagOf
 import com.coffeeshop.utils.getOrThrow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 internal class ProductDetailInMemoryCacheImpl
@@ -18,15 +20,19 @@ internal class ProductDetailInMemoryCacheImpl
     private val logger: CoffeeshopLogger,
 ) : Cache<ID, ProductWithModifiers> {
 
-    override suspend fun put(key: ID, value: ProductWithModifiers): Result<Boolean> =
-        try {
-            logger.debug(TAG.tagOf(), "putting in cacheMap by key: $key value: $value")
+//    val mutex = Mutex()
 
-            productDetailCacheMap[key] = value
-            true.asSuccessResult()
+    override suspend fun put(key: ID, value: ProductWithModifiers): Result<Boolean> =
+//            mutex.withLock {
+        try {
+                logger.debug(TAG.tagOf(), "putting in cacheMap by key: $key value: $value")
+
+                productDetailCacheMap[key] = value
+                true.asSuccessResult()
         } catch (cause: Throwable) {
             cause.asErrorResult()
         }
+//            }
 
     override suspend fun get(key: ID): Result<ProductWithModifiers> =
         try {
