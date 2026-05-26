@@ -13,15 +13,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,7 +41,6 @@ import com.coffeeshop.common.model.support.Size
 import com.coffeeshop.common.model.support.display
 import com.coffeeshop.designsystem.common.Beige
 import com.coffeeshop.designsystem.common.DarkBrown
-import com.coffeeshop.designsystem.common.White
 import com.coffeeshop.designsystem.components.CoffeeButtonFilled
 import com.coffeeshop.designsystem.components.CoffeeInputField
 import com.coffeeshop.designsystem.components.CoffeeStepper
@@ -62,7 +56,6 @@ fun ProductDetailScreen(
     viewModelFactory = viewModelFactory,
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProductDetailScreenInternal(
     productId: ID,
@@ -70,68 +63,21 @@ internal fun ProductDetailScreenInternal(
 ) {
     val viewModel = viewModel<ProductDetailViewModel>(factory = viewModelFactory)
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     LaunchedEffect(productId) {
         viewModel.reduce(ProductDetailUiStateEvent.LoadProduct(productId))
     }
 
-    LaunchedEffect(Unit) {
-        sheetState.expand()
-    }
+    val clickListener: (ProductDetailUiStateEvent) -> Unit = { event -> viewModel.reduce(event) }
 
-    val onDismiss = remember { { viewModel.reduce(ProductDetailUiStateEvent.DismissProductDetailBottomSheet) } }
-    val onVolumeSelected = remember { { volumeString: String -> viewModel.reduce(ProductDetailUiStateEvent.SelectVolume(volumeString)) } }
-    val onModifierSelected = remember { { groupTitle: String, optionTitle: String -> viewModel.reduce(ProductDetailUiStateEvent.SelectModifier(groupTitle, optionTitle)) } }
-    val onQuantityDecrement = remember { { current: Int -> viewModel.reduce(ProductDetailUiStateEvent.DecrementQuantity(current)) } }
-    val onQuantityIncrement = remember { { current: Int -> viewModel.reduce(ProductDetailUiStateEvent.IncrementQuantity(current)) } }
-    val onCommentChange = remember { { comment: String -> viewModel.reduce(ProductDetailUiStateEvent.CommentChanged(comment)) } }
-    val onAddToCart = remember { { viewModel.reduce(ProductDetailUiStateEvent.AddToCart) } }
-
-    ProductDetailBottomSheet(
+    ProductDetailContent(
         state = viewModel.uiState.collectAsState().value,
-        sheetState = sheetState,
-        onDismiss = onDismiss,
-        onVolumeSelected = onVolumeSelected,
-        onModifierSelected = onModifierSelected,
-        onQuantityDecrement = onQuantityDecrement,
-        onQuantityIncrement = onQuantityIncrement,
-        onCommentChange = onCommentChange,
-        onAddToCart = onAddToCart,
+        onVolumeSelected = { clickListener(ProductDetailUiStateEvent.SelectVolume(it)) },
+        onModifierSelected = { groupTitle, option -> clickListener(ProductDetailUiStateEvent.SelectModifier(groupTitle, option)) },
+        onQuantityDecrement = { clickListener(ProductDetailUiStateEvent.DecrementQuantity(it)) },
+        onQuantityIncrement = { clickListener(ProductDetailUiStateEvent.IncrementQuantity(it)) },
+        onCommentChange = { clickListener(ProductDetailUiStateEvent.CommentChanged(it)) },
+        onAddToCart = { clickListener(ProductDetailUiStateEvent.AddToCart) },
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ProductDetailBottomSheet(
-    state: ProductDetailUiState,
-    sheetState: SheetState,
-    onDismiss: () -> Unit,
-    onVolumeSelected: (String) -> Unit,
-    onModifierSelected: (groupTitle: String, option: String) -> Unit,
-    onQuantityDecrement: (Int) -> Unit,
-    onQuantityIncrement: (Int) -> Unit,
-    onCommentChange: (String) -> Unit,
-    onAddToCart: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = White,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        modifier = modifier,
-    ) {
-        ProductDetailContent(
-            state = state,
-            onVolumeSelected = onVolumeSelected,
-            onModifierSelected = onModifierSelected,
-            onQuantityDecrement = onQuantityDecrement,
-            onQuantityIncrement = onQuantityIncrement,
-            onCommentChange = onCommentChange,
-            onAddToCart = onAddToCart,
-        )
-    }
 }
 
 @Composable

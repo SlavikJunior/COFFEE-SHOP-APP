@@ -94,7 +94,6 @@ internal sealed interface ProductDetailUiStateEvent {
 
     data class LoadProduct(val productId: ID) : ProductDetailUiStateEvent
     data object CalculateProductTotalPrice : ProductDetailUiStateEvent
-    data object DismissProductDetailBottomSheet : ProductDetailUiStateEvent
     data class SelectVolume(val volumeString: String) : ProductDetailUiStateEvent
     data class SelectModifier(val groupTitle: String, val optionTitle: String) : ProductDetailUiStateEvent
     data class IncrementQuantity(val current: Int) : ProductDetailUiStateEvent
@@ -123,7 +122,6 @@ internal class ProductDetailViewModel
         when (event) {
             is ProductDetailUiStateEvent.LoadProduct -> onLoadProduct(event)
             ProductDetailUiStateEvent.CalculateProductTotalPrice -> onCalculateProductTotalPrice()
-            ProductDetailUiStateEvent.DismissProductDetailBottomSheet -> onDismissProductDetailBottomSheet()
             is ProductDetailUiStateEvent.SelectVolume -> onSelectVolume(event)
             is ProductDetailUiStateEvent.SelectModifier -> onSelectModifier(event)
             is ProductDetailUiStateEvent.DecrementQuantity -> onDecrementQuantity(event)
