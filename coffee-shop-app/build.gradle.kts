@@ -4,6 +4,9 @@ plugins {
 
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinx.serialization)
+
+    alias(libs.plugins.gms.plugin)
+    alias(libs.plugins.crashlytics.plugin)
 }
 
 android {
@@ -44,6 +47,13 @@ android {
 }
 
 dependencies {
+    // firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.auth)
+
     // deps for app component
     implementation(project(path = ":core:deps"))
     implementation(project(path = ":core:di"))
@@ -69,6 +79,10 @@ dependencies {
     implementation(project(path = ":feature:product-detail:internal"))
     implementation(project(path = ":feature:cart:api"))
     implementation(project(path = ":feature:cart:internal"))
+    implementation(project(path = ":feature:active-orders:api"))
+    implementation(project(path = ":feature:active-orders:internal"))
+    implementation(project(path = ":feature:order-history:api"))
+    implementation(project(path = ":feature:order-history:internal"))
 
     // nav deps
     implementation(project(path = ":core:navigation"))

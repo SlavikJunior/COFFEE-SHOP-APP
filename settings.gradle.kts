@@ -28,6 +28,10 @@ rootProject.name = "COFFEE SHOP APP"
 include(":coffee-shop-app")
 
 
+// samples
+include(":sample:auth")
+
+
 // core modules
 include(":core:utils")
 include(":core:common")
@@ -61,3 +65,9 @@ include(":feature:product-detail:internal")
 
 include(":feature:cart:api")
 include(":feature:cart:internal")
+
+include(":feature:active-orders:api")
+include(":feature:active-orders:internal")
+
+include(":feature:order-history:api")
+include(":feature:order-history:internal")

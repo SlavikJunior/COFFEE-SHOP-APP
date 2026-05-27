@@ -1,7 +1,12 @@
 package com.coffeeshop.coffeeshopapp
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
+import com.coffeeshop.activeorders.internal.di.DaggerFeatureActiveOrdersComponent
+import com.coffeeshop.activeorders.internal.di.FeatureActiveOrdersComponent
 import com.coffeeshop.auth.internal.di.DaggerFeatureAuthComponent
 import com.coffeeshop.auth.internal.di.FeatureAuthComponent
 import com.coffeeshop.cache.internal.di.CoreCacheComponent
@@ -14,18 +19,27 @@ import com.coffeeshop.di.DaggerCoreDiComponent
 import com.coffeeshop.json.JsonComponent
 import com.coffeeshop.network.di.DaggerNetworkComponent
 import com.coffeeshop.network.di.NetworkComponent
+import com.coffeeshop.orderhistory.internal.di.DaggerFeatureOrderHistoryComponent
+import com.coffeeshop.orderhistory.internal.di.FeatureOrderHistoryComponent
 import com.coffeeshop.product_detail.internal.di.DaggerFeatureProductDetailComponent
 import com.coffeeshop.product_detail.internal.di.FeatureProductDetailComponent
 import com.coffeeshop.profile.internal.di.DaggerFeatureProfileComponent
 import com.coffeeshop.profile.internal.di.FeatureProfileComponent
 import com.coffeshop.catalog.internal.di.DaggerFeatureCatalogComponent
 import com.coffeshop.catalog.internal.di.FeatureCatalogComponent
+import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
 import com.coffeshop.deps.AppDeps
 import com.coffeshop.navigation.di.CoreNavigationComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class CoffeeShopApp : Application() {
 
     private val appDeps by lazy { AppDeps.create() }
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
 
     internal lateinit var jsonComponent: JsonComponent
@@ -44,10 +58,14 @@ class CoffeeShopApp : Application() {
     internal lateinit var featureProfileComponent: FeatureProfileComponent
     internal lateinit var featureProductDetailComponent: FeatureProductDetailComponent
     internal lateinit var featureCartComponent: FeatureCartComponent
+    internal lateinit var featureActiveOrdersComponent: FeatureActiveOrdersComponent
+    internal lateinit var featureOrderHistoryComponent: FeatureOrderHistoryComponent
 
 
     override fun onCreate() {
         super.onCreate()
+
+        createNotificationChannels()
 
         jsonComponent = JsonComponent.get
 
@@ -70,6 +88,7 @@ class CoffeeShopApp : Application() {
             .jsonComponent(jsonComponent)
             .build()
 
+        navigateToLoginWhenRequired()
 
         coffeeShopAppComponent = DaggerCoffeeShopAppComponent.builder()
             .applicationContext(this)
@@ -90,9 +109,11 @@ class CoffeeShopApp : Application() {
             .retrofit(networkComponent.retrofit)
             .dispatcherIo(coreDiComponent.dispatcherIO)
             .router(coreNavigationComponent.router())
+            .tokenRepository(networkComponent.tokenRepository)
             .build()
 
         featureCatalogComponent = DaggerFeatureCatalogComponent.builder()
+            .isUserLoggedIn(featureAuthComponent.isUserLoggedInUseCase)
             .getTotalPriceFromCart(featureCartComponent.getTotalPriceFromCartUseCase)
             .jsonComponent(jsonComponent)
             .networkComponent(networkComponent)
@@ -106,9 +127,20 @@ class CoffeeShopApp : Application() {
 
         featureProfileComponent = DaggerFeatureProfileComponent.builder()
             .coreDiComponent(coreDiComponent)
-            .applicationContext(this)
             .retrofit(networkComponent.retrofit)
             .router(coreNavigationComponent.router())
+            .tokenRepository(networkComponent.tokenRepository)
+            .build()
+
+        featureOrderHistoryComponent = DaggerFeatureOrderHistoryComponent.builder()
+            .coreDiComponent(coreDiComponent)
+            .retrofit(networkComponent.retrofit)
+            .build()
+
+        featureActiveOrdersComponent = DaggerFeatureActiveOrdersComponent.builder()
+            .router(coreNavigationComponent.router())
+            .retrofit(networkComponent.retrofit)
+            .coreDiComponent(coreDiComponent)
             .build()
 
         featureProductDetailComponent = DaggerFeatureProductDetailComponent.builder()
@@ -120,6 +152,37 @@ class CoffeeShopApp : Application() {
             .removeProductDetailFromCacheUseCase(featureCatalogComponent.removeProductDetailFromCacheUseCase)
             .addToCartUseCase(featureCartComponent.addToCartUseCase)
             .build()
+    }
+
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = getSystemService(NotificationManager::class.java)
+            listOf(
+                NotificationChannel(CHANNEL_ORDER_STATUS, CHANNEL_ORDER_STATUS_NAME, NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(CHANNEL_AUTH, CHANNEL_AUTH_NAME, NotificationManager.IMPORTANCE_HIGH),
+                NotificationChannel(CHANNEL_PROMO, CHANNEL_PROMO_NAME, NotificationManager.IMPORTANCE_DEFAULT),
+                NotificationChannel(CHANNEL_DEFAULT, CHANNEL_DEFAULT_NAME, NotificationManager.IMPORTANCE_DEFAULT),
+            ).forEach { manager.createNotificationChannel(it) }
+        }
+    }
+
+    private fun navigateToLoginWhenRequired() {
+        applicationScope.launch {
+            networkComponent.sessionExpiredFlow.collect {
+                coreNavigationComponent.router().replaceCurrent(LoginRoute())
+            }
+        }
+    }
+
+    companion object {
+        const val CHANNEL_PROMO = "channel_promo"
+        const val CHANNEL_PROMO_NAME = "Промо-акции"
+        const val CHANNEL_AUTH = "channel_auth"
+        const val CHANNEL_AUTH_NAME = "Безопасность"
+        const val CHANNEL_ORDER_STATUS = "channel_order_status"
+        const val CHANNEL_ORDER_STATUS_NAME = "Статусы заказов"
+        const val CHANNEL_DEFAULT = "channel_default"
+        const val CHANNEL_DEFAULT_NAME = "Общие"
     }
 }
 
@@ -162,5 +225,19 @@ fun Context.featureCart(): FeatureCartComponent {
     return when(this) {
         is CoffeeShopApp -> featureCartComponent
         else -> applicationContext.featureCart()
+    }
+}
+
+fun Context.featureActiveOrders(): FeatureActiveOrdersComponent {
+    return when(this) {
+        is CoffeeShopApp -> featureActiveOrdersComponent
+        else -> applicationContext.featureActiveOrders()
+    }
+}
+
+fun Context.featureOrderHistory(): FeatureOrderHistoryComponent {
+    return when(this) {
+        is CoffeeShopApp -> featureOrderHistoryComponent
+        else -> applicationContext.featureOrderHistory()
     }
 }

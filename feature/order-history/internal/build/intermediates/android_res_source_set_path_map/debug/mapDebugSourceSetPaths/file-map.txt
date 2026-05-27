@@ -1,0 +1,9 @@
+com.coffeeshop.orderhistory.internal-pngs-0 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/build/generated/res/pngs/debug
+com.coffeeshop.orderhistory.internal-updated_navigation_xml-1 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/build/generated/updated_navigation_xml/debug
+com.coffeeshop.orderhistory.internal-mergeDebugResources-2 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
+com.coffeeshop.orderhistory.internal-mergeDebugResources-3 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
+com.coffeeshop.orderhistory.internal-debug-4 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/build/intermediates/merged_res/debug/mergeDebugResources
+com.coffeeshop.orderhistory.internal-debug-5 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/build/intermediates/packaged_res/debug/packageDebugResources
+com.coffeeshop.orderhistory.internal-debug-6 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/src/debug/res
+com.coffeeshop.orderhistory.internal-main-7 /Users/vyacheslav/StudioProjects/COFFEE-SHOP-APP/feature/order-history/internal/src/main/res
+gradleHome-0 /Users/vyacheslav/.gradle

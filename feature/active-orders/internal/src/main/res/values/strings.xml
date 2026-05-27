@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="active_orders_top_bar_title">Мои заказы</string>
+    <string name="active_orders_empty">Нет активных заказов</string>
+    <string name="active_orders_total">Итого: %s</string>
+    <string name="active_orders_comment">Комментарий: %s</string>
+    <string name="status_pending">Ожидает</string>
+    <string name="status_paid">Оплачен</string>
+    <string name="status_preparing">Готовится</string>
+    <string name="status_ready">Готов</string>
+    <string name="status_cancelled">Отменён</string>
+</resources>
