@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_top_bar_title">Профиль</string>
+    <string name="profile_notifications_label">Уведомления</string>
+    <string name="profile_order_history_label">История заказов</string>
+    <string name="profile_feedback_label">Обратная связь</string>
+    <string name="profile_logout_button">ВЫЙТИ</string>
+    <string name="profile_field_name">Имя</string>
+    <string name="profile_field_phone">Номер телефона</string>
+    <string name="profile_field_email">Почта</string>
+</resources>

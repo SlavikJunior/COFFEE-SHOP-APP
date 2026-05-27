@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.arttttt.nav3router.Router
 import com.coffeeshop.buildconfig.api.BuildConfigProvider
 import com.coffeeshop.cache.api.Cache
+import com.coffeeshop.auth.api.domain.usecase.IsUserLoggedInUseCase
 import com.coffeeshop.cart.api.domain.usecase.GetTotalPriceFromCartUseCase
 import com.coffeeshop.common.model.products.ProductWithModifiers
 import com.coffeeshop.common.model.support.ID
@@ -42,6 +43,7 @@ interface FeatureCatalogComponent {
 
     @Component.Builder
     interface Builder {
+        @BindsInstance fun isUserLoggedIn(isUserLoggedIn: IsUserLoggedInUseCase): Builder
         @BindsInstance fun getTotalPriceFromCart(getTotalPriceFromCartUseCase: GetTotalPriceFromCartUseCase): Builder
         fun jsonComponent(jsonComponent: JsonComponent): Builder
         fun networkComponent(networkComponent: NetworkComponent): Builder

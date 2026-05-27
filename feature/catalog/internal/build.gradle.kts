@@ -52,6 +52,7 @@ dependencies {
     implementation(project(":core:logger:api"))
 
     implementation(project(":feature:catalog:api"))
+    implementation(project(":feature:auth:api"))
     implementation(project(":feature:profile:api"))
     implementation(project(":feature:product-detail:api"))
     implementation(project(":feature:cart:api"))

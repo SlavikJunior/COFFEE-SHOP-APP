@@ -13,6 +13,6 @@ fun EntryProviderScope<NavKey>.profileScreenEntry(
     viewModelFactory: ViewModelProvider.Factory,
 ) {
     entry<ProfileRoute> {
-        ProfileScreen()
+        ProfileScreen(viewModelFactory = viewModelFactory)
     }
 }

@@ -5,6 +5,8 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arttttt.nav3router.Router
+import com.coffeeshop.auth.api.domain.usecase.IsUserLoggedInUseCase
+import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
 import com.coffeeshop.cart.api.domain.usecase.GetTotalPriceFromCartUseCase
 import com.coffeeshop.cart.api.presentation.navigation.CartRoute
 import com.coffeeshop.common.model.products.CategoryType
@@ -73,6 +75,7 @@ internal class CatalogViewModel
     private val isProductDetailStoredInCache: IsProductDetailStoredInCacheUseCase,
     private val saveProductDetailInCache: SaveProductDetailInCacheUseCase,
     private val getTotalPriceFromCart: GetTotalPriceFromCartUseCase,
+    private val isUserLoggedIn: IsUserLoggedInUseCase,
     private val router: Router<Route>
 ) : ViewModel() {
 
@@ -111,7 +114,11 @@ internal class CatalogViewModel
     }
 
     private fun onProfileClicked() {
-        router.push(ProfileRoute())
+        if (isUserLoggedIn()) {
+            router.push(ProfileRoute(isLoggedIn = true))
+        } else {
+            router.push(LoginRoute())
+        }
     }
 
     private fun onRetryAfterErrorClicked() {

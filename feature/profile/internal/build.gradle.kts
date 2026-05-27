@@ -38,17 +38,33 @@ android {
 }
 
 dependencies {
+    implementation(project(path = ":feature:catalog:api"))
     implementation(project(path = ":feature:profile:api"))
+    implementation(project(path = ":feature:order-history:api"))
+    implementation(project(path = ":feature:auth:api"))
+
     implementation(project(path = ":core:network"))
     implementation(project(path = ":core:database"))
     implementation(project(path = ":core:di"))
+    implementation(project(path = ":core:design-system"))
+    implementation(project(path = ":core:utils"))
+    implementation(libs.coroutines)
 
     implementation(libs.bundles.nav3)
 
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)
 
+    implementation(libs.bundles.lifecycle.viewmodel)
+
     implementation(libs.androidx.core.ktx)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)

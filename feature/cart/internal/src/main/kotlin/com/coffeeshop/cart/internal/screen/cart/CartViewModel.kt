@@ -86,9 +86,9 @@ internal class CartViewModel
 
     private fun onNavigateBack() {
         logger.info(TAG.tagOf(), "onNavigateBack invoked")
-        onCleared()
 
         router.popTo(CatalogRoute())
+        onCleared()
     }
 
     private fun onLoadData() {
