@@ -53,8 +53,8 @@ class MessagingService : FirebaseMessagingService() {
         Log.d(TAG, "onMessageReceived data: ${message.data}")
         notificationShower.show(message)
 
-        val type = message.data[TYPE_KEY] ?: return
-        when (type) {
+        val type: String = message.data[TYPE_KEY] ?: return
+        when (type.uppercase()) {
             TYPE_ORDER_STATUS -> {
                 val orderId = message.data[ORDER_ID_KEY]?.toLongOrNull() ?: return
                 val status = message.data[STATUS_KEY]
