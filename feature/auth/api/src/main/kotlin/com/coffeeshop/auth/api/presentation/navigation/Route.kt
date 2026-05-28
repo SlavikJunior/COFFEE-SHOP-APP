@@ -11,5 +11,6 @@ data class RegisterRoute(
 
 @Serializable
 data class LoginRoute(
-    val phone: String = ""
+    val phone: String = "",
+    val message: String? = null
 ) : Route

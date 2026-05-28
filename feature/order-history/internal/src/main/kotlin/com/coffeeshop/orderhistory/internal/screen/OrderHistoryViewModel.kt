@@ -1,11 +1,15 @@
 package com.coffeeshop.orderhistory.internal.screen
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arttttt.nav3router.Router
+import com.coffeeshop.auth.api.domain.usecase.IsUserLoggedInUseCase
 import com.coffeeshop.common.result.Result
 import com.coffeeshop.di.qualifiers.DispatcherMain
 import com.coffeeshop.orderhistory.api.domain.model.OrderSummary
 import com.coffeeshop.orderhistory.api.domain.usecase.GetOrderHistoryUseCase
+import com.coffeshop.navigation.Route
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@Stable
 internal sealed interface OrderHistoryUiState {
     data object Loading : OrderHistoryUiState
     data class Error(val message: String) : OrderHistoryUiState
@@ -53,9 +58,15 @@ internal class OrderHistoryViewModel
                 is Result.Success -> withContext(mainDispatcher) {
                     _uiState.update { OrderHistoryUiState.Success(result.data) }
                 }
+
                 is Result.Error -> withContext(mainDispatcher) {
-                    _uiState.update { OrderHistoryUiState.Error(result.exception.message ?: "Неизвестная ошибка") }
+                    _uiState.update {
+                        OrderHistoryUiState.Error(
+                            result.exception.message ?: "Неизвестная ошибка"
+                        )
+                    }
                 }
+
                 Result.Loading -> Unit
             }
         }

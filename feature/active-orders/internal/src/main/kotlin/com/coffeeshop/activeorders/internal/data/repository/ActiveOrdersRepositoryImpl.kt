@@ -35,6 +35,16 @@ internal class ActiveOrdersRepositoryImpl
             }
         }
 
+    override suspend fun fetchOrder(orderId: Long): Result<ActiveOrder> =
+        withContext(dispatcher) {
+            try {
+                service.getOrderDetail(orderId).toActiveOrder().asSuccessResult()
+            } catch (cause: Throwable) {
+                Log.e(TAG, "fetchOrder($orderId) failed: $cause")
+                cause.asErrorResult()
+            }
+        }
+
     private companion object {
         const val TAG = "ActiveOrdersRepo"
     }

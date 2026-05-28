@@ -1,6 +1,7 @@
 package com.coffeeshop.auth.internal.screen.login
 
 import android.app.Activity
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.coffeeshop.auth.api.domain.usecase.VerifyFirebaseTokenUseCase
 import com.coffeeshop.auth.internal.data.firebase.FirebasePhoneAuthManager
@@ -25,6 +26,7 @@ internal enum class LoginError {
     SmsSendFailed, WrongCode, AccountNotFound, ServerError, NetworkError
 }
 
+@Stable
 internal sealed interface LoginUiState {
 
     val isLoading: Boolean

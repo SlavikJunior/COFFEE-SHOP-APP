@@ -5,6 +5,7 @@ import com.coffeeshop.buildconfig.api.BuildConfigProvider
 import com.coffeeshop.di.CoreDiComponent
 import com.coffeeshop.di.qualifiers.ApplicationContext
 import com.coffeeshop.json.JsonComponent
+import com.coffeeshop.network.NotificationsRepository
 import com.coffeeshop.network.TokenRepository
 import dagger.BindsInstance
 import dagger.Component
@@ -32,6 +33,8 @@ interface NetworkComponent {
     val sessionExpiredFlow: SharedFlow<Unit>
 
     val tokenRepository: TokenRepository
+
+    val notificationsRepository: NotificationsRepository
 
     @Component.Builder
     interface Builder {

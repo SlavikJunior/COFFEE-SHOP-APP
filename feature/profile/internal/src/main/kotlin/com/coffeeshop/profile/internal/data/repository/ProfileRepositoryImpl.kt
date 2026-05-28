@@ -7,11 +7,14 @@ import com.coffeeshop.common.result.Result
 import com.coffeeshop.common.result.asErrorResult
 import com.coffeeshop.common.result.asSuccessResult
 import com.coffeeshop.di.qualifiers.DispatcherIO
+import com.coffeeshop.network.NotificationsRepository
 import com.coffeeshop.network.TokenRepository
 import com.coffeeshop.profile.api.domain.repository.ProfileRepository
 import com.coffeeshop.profile.internal.data.toUser
 import com.coffeeshop.profile.internal.data.service.ProfileService
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -19,6 +22,7 @@ internal class ProfileRepositoryImpl
 @Inject constructor(
     private val profileService: ProfileService,
     private val tokenRepository: TokenRepository,
+    private val notificationsRepository: NotificationsRepository,
     @param:DispatcherIO private val dispatcher: CoroutineDispatcher,
 ) : ProfileRepository {
 
@@ -33,6 +37,9 @@ internal class ProfileRepositoryImpl
 
     override suspend fun logout(): Result<AuthStatus> = withContext(dispatcher) {
         try {
+            val fcmToken = runCatching { FirebaseMessaging.getInstance().token.await() }.getOrNull()
+            fcmToken?.let { notificationsRepository.deleteToken(it) }
+            runCatching { FirebaseMessaging.getInstance().deleteToken().await() }
             tokenRepository.accessToken = null
             tokenRepository.refreshToken = null
             tokenRepository.userId = null

@@ -71,3 +71,6 @@ include(":feature:active-orders:internal")
 
 include(":feature:order-history:api")
 include(":feature:order-history:internal")
+
+include(":feature:favorites:api")
+include(":feature:favorites:internal")

@@ -20,6 +20,7 @@ import com.coffeeshop.designsystem.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,7 +60,7 @@ fun CoffeeStepper(
             size = size,
         ) {
             Icon(
-                imageVector = Icons.Default.Remove,
+                rememberVectorPainter(Icons.Default.Remove),
                 contentDescription = stringResource(R.string.cd_stepper_decrement),
                 tint = if (value > minValue) DarkBrown else Secondary,
                 modifier = Modifier.size(16.dp),
@@ -77,7 +78,7 @@ fun CoffeeStepper(
 
         StepperButton(onClick = onIncrement, enabled = true, size) {
             Icon(
-                imageVector = Icons.Default.Add,
+                rememberVectorPainter(Icons.Default.Add),
                 contentDescription = stringResource(R.string.cd_stepper_increment),
                 tint = DarkBrown,
                 modifier = Modifier.size(16.dp),

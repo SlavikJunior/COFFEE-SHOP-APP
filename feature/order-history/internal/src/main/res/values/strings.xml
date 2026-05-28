@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="order_history_empty_label">Заказов пока нет</string>
+    <string name="order_history_error_label">Не удалось загрузить заказы</string>
+    <string name="order_history_title">История заказов</string>
+    <string name="order_history_order_item_title">Заказ #%1$d</string>
+</resources>

@@ -1,2 +1,6 @@
 R_DEF: Internal format may change without notice
 local
+string order_history_empty_label
+string order_history_error_label
+string order_history_order_item_title
+string order_history_title

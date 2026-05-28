@@ -48,16 +48,18 @@ import com.coffeshop.navigation.Route
 @Composable
 fun LoginScreen(
     router: Router<Route>,
-    @LoginViewModelFactory viewModelFactory: ViewModelProvider.Factory
+    @LoginViewModelFactory viewModelFactory: ViewModelProvider.Factory,
+    message: String? = null
 ) = LoginScreenInternal(
-    router = router, viewModelFactory
+    router = router, viewModelFactory, message
 )
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 internal fun LoginScreenInternal(
     router: Router<Route>,
-    @LoginViewModelFactory viewModelFactory: ViewModelProvider.Factory
+    @LoginViewModelFactory viewModelFactory: ViewModelProvider.Factory,
+    message: String? = null
 ) {
     val viewModel = viewModel<LoginViewModel>(factory = viewModelFactory)
     val uiState = viewModel.uiState.collectAsState()
@@ -66,6 +68,12 @@ internal fun LoginScreenInternal(
     LaunchedEffect(Unit) {
         viewModel.navigateToHome.collect {
             router.replaceStack(CatalogRoute(isLoggedIn = true))
+        }
+    }
+
+    message?.let { message ->
+        LaunchedEffect(Unit) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 

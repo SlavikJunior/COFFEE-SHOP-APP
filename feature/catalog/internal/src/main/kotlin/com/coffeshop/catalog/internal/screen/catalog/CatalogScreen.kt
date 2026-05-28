@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -33,6 +32,8 @@ import com.coffeeshop.common.model.products.Product
 import com.coffeeshop.common.model.support.ID
 import com.coffeeshop.designsystem.components.CategoryTabRow
 import com.coffeeshop.designsystem.components.CoffeeShopFloatingActionButton
+import com.coffeeshop.designsystem.components.CommonBottomBar
+import com.coffeeshop.designsystem.components.CommonBottomBarDestinations
 import com.coffeeshop.designsystem.components.HomeTopBar
 import com.coffeeshop.designsystem.components.LoadingOverlay
 import com.coffeeshop.designsystem.components.ProductCard
@@ -40,75 +41,82 @@ import com.coffeeshop.designsystem.components.RetryOverlay
 import kotlinx.coroutines.launch
 
 @Composable
- fun CatalogScreen(
+internal fun CatalogScreen(
     viewModelFactory: ViewModelProvider.Factory,
 ) {
     val viewModel: CatalogViewModel = viewModel(modelClass = CatalogViewModel::class,factory = viewModelFactory,)
     val uiState = viewModel.uiState.collectAsState()
 
-    Scaffold(
-        topBar = {
-            HomeTopBar(
-                onProfileClick = { viewModel.reduce(CatalogUiStateEvent.ProfileClicked) },
-                modifier = Modifier.statusBarsPadding(),
-            )
-        },
-        floatingActionButton = { CoffeeShopFloatingActionButton(
-            imageVector = Icons.Default.ShoppingCart,
-            onClick = { viewModel.reduce(event = CatalogUiStateEvent.NavigateToCart) },
-            text = uiState.value.cartPrice.display()
-        ) }
-    ) { paddingValues ->
-        CatalogScreenContent(
-            viewModel = viewModel,
-            paddingValues = paddingValues
-        )
-    }
+    CatalogScreenContent(uiState.value, { event -> viewModel.reduce(event) })
 }
 
 @Composable
 private fun CatalogScreenContent(
-    viewModel: CatalogViewModel,
-    paddingValues: PaddingValues = PaddingValues()
+    uiState: CatalogUiState,
+    onEvent: (CatalogUiStateEvent) -> Unit
 ) {
-    val uiState: State<CatalogUiState> = viewModel.uiState.collectAsState()
-    when (uiState.value.state) {
-        CatalogUiStateStatus.Loading -> LoadingOverlay()
-        is CatalogUiStateStatus.Error -> RetryOverlay(
-            onRetry = {
-                viewModel.reduce(event = CatalogUiStateEvent.RetryAfterErrorClicked)
-            }
-        )
+    Scaffold(
+        topBar = {
+            HomeTopBar(
+                onProfileClick = { onEvent(CatalogUiStateEvent.ProfileClicked) },
+                modifier = Modifier
+                    .statusBarsPadding(),
+            )
+        },
+        floatingActionButton = { CoffeeShopFloatingActionButton(
+            imageVector = Icons.Default.ShoppingCart,
+            onClick = { onEvent(CatalogUiStateEvent.NavigateToCart) },
+            text = uiState.cartPrice.display()
+        ) },
+        bottomBar = {
+            CommonBottomBar(
+                selectedDestination = CommonBottomBarDestinations.CATALOG,
+                destinationsEvents = mapOf(
+                    CommonBottomBarDestinations.CATALOG to {},
+                    CommonBottomBarDestinations.FAVORITES to { onEvent(CatalogUiStateEvent.BottomNavigateToFavorites) },
+                    CommonBottomBarDestinations.PROFILE to { onEvent(CatalogUiStateEvent.BottomNavigateToProfile) },
+                    CommonBottomBarDestinations.ACTIVE_ORDERS to { onEvent(CatalogUiStateEvent.BottomNavigateToActiveOrders) }
+                )
+            )
+        }
+    ) { paddingValues ->
+        when (uiState.status) {
+            CatalogUiStateStatus.Loading -> LoadingOverlay()
+            is CatalogUiStateStatus.Error -> RetryOverlay(
+                onRetry = {
+                    onEvent(CatalogUiStateEvent.RetryAfterErrorClicked)
+                }
+            )
 
-        CatalogUiStateStatus.Success -> CatalogScreenSuccessContent(
-            viewModel = viewModel,
-            paddingValues = paddingValues
-        )
+            CatalogUiStateStatus.Success -> CatalogScreenSuccessContent(
+                onEvent = onEvent,
+                uiState = uiState,
+                paddingValues = paddingValues
+            )
+        }
     }
 }
 
 @Composable
 private fun CatalogScreenSuccessContent(
-    viewModel: CatalogViewModel,
+    uiState: CatalogUiState,
+    onEvent: (CatalogUiStateEvent) -> Unit,
     paddingValues: PaddingValues = PaddingValues()
 ) {
-    val uiState = viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     val pagerState = rememberPagerState(
-        initialPage = CategoryType.entries.indexOf(uiState.value.selectedCategoryType)
+        initialPage = CategoryType.entries.indexOf(uiState.selectedCategoryType)
     ) { CategoryType.entries.size }
 
     // Свайп пейджера → обновить категорию в ViewModel
     LaunchedEffect(pagerState.currentPage) {
-        viewModel.reduce(
-            CatalogUiStateEvent.ChangeCategoryType(CategoryType.entries[pagerState.currentPage])
-        )
+        onEvent(CatalogUiStateEvent.ChangeCategoryType(CategoryType.entries[pagerState.currentPage]))
     }
 
     // Смена категории через таб → анимировать пейджер
-    LaunchedEffect(uiState.value.selectedCategoryType) {
-        val targetPage = CategoryType.entries.indexOf(uiState.value.selectedCategoryType)
+    LaunchedEffect(uiState.selectedCategoryType) {
+        val targetPage = CategoryType.entries.indexOf(uiState.selectedCategoryType)
         if (pagerState.currentPage != targetPage) {
             pagerState.animateScrollToPage(targetPage)
         }
@@ -121,7 +129,7 @@ private fun CatalogScreenSuccessContent(
     ) {
         CategoryTabRow(
             tabs = CategoryType.entries.map { it.russianName },
-            selectedIndex = CategoryType.entries.indexOf(uiState.value.selectedCategoryType),
+            selectedIndex = CategoryType.entries.indexOf(uiState.selectedCategoryType),
             onTabSelected = { index ->
                 coroutineScope.launch { pagerState.animateScrollToPage(index) }
             },
@@ -133,19 +141,19 @@ private fun CatalogScreenSuccessContent(
             modifier = Modifier.fillMaxSize(),
         ) { page ->
             val category = CategoryType.entries[page]
-            val products = uiState.value.productsMap[category] ?: emptyList()
+            val products = uiState.productsMap[category] ?: emptyList()
             when (category) {
                 CategoryType.SIGNATURE -> CatalogScreenSuccessColumnContent(
                     products = products,
-                    favouriteProductIds = uiState.value.favouriteProductIds,
-                    onFavouriteToggle = { viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(it)) },
-                    onProductClick = { viewModel.reduce(CatalogUiStateEvent.GetProductDetail(it)) },
+                    favouriteProductIds = uiState.favouriteProductIds,
+                    onFavouriteToggle = { onEvent(CatalogUiStateEvent.ToggleProductFavorite(it)) },
+                    onProductClick = { onEvent(CatalogUiStateEvent.GetProductDetail(it)) },
                 )
                 else -> CatalogScreenSuccessGridContent(
                     products = products,
-                    favouriteProductIds = uiState.value.favouriteProductIds,
-                    onFavouriteToggle = { viewModel.reduce(CatalogUiStateEvent.ToggleProductFavorite(it)) },
-                    onProductClick = { viewModel.reduce(CatalogUiStateEvent.GetProductDetail(it)) },
+                    favouriteProductIds = uiState.favouriteProductIds,
+                    onFavouriteToggle = { onEvent(CatalogUiStateEvent.ToggleProductFavorite(it)) },
+                    onProductClick = { onEvent(CatalogUiStateEvent.GetProductDetail(it)) },
                 )
             }
         }

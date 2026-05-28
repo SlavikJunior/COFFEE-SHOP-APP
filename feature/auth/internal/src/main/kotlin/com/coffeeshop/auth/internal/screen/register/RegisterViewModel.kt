@@ -1,6 +1,7 @@
 package com.coffeeshop.auth.internal.screen.register
 
 import android.app.Activity
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.coffeeshop.auth.api.domain.usecase.RegisterByFirebaseIdTokenAndNameUseCase
 import com.coffeeshop.auth.internal.data.firebase.FirebasePhoneAuthManager
@@ -27,6 +28,7 @@ internal enum class RegisterError {
     SmsSendFailed, WrongCode, AlreadyRegistered, ServerError, NetworkError
 }
 
+@Stable
 internal sealed interface RegisterUiState {
 
     val name: String

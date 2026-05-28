@@ -2,7 +2,9 @@ package com.coffeeshop.profile.internal.di
 
 import androidx.lifecycle.ViewModelProvider
 import com.arttttt.nav3router.Router
+import com.coffeeshop.auth.api.domain.usecase.IsUserLoggedInUseCase
 import com.coffeeshop.di.CoreDiComponent
+import com.coffeeshop.network.NotificationsRepository
 import com.coffeeshop.network.TokenRepository
 import com.coffeeshop.profile.internal.data.service.ProfileModule
 import com.coffeshop.navigation.Route
@@ -24,6 +26,7 @@ interface FeatureProfileComponent {
 
     @Component.Builder
     interface Builder {
+        @BindsInstance fun isUserLoggedIn(isUserLoggedIn: IsUserLoggedInUseCase): Builder
         fun coreDiComponent(coreDiComponent: CoreDiComponent): Builder
 
         @BindsInstance fun retrofit(retrofit: Retrofit): Builder
@@ -31,6 +34,8 @@ interface FeatureProfileComponent {
         @BindsInstance fun router(router: Router<Route>): Builder
 
         @BindsInstance fun tokenRepository(tokenRepository: TokenRepository): Builder
+
+        @BindsInstance fun notificationsRepository(repo: NotificationsRepository): Builder
 
         fun build(): FeatureProfileComponent
     }

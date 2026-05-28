@@ -40,7 +40,9 @@ android {
 dependencies {
     implementation(project(path = ":feature:catalog:api"))
     implementation(project(path = ":feature:profile:api"))
+    implementation(project(path = ":feature:favorites:api"))
     implementation(project(path = ":feature:order-history:api"))
+    implementation(project(path = ":feature:active-orders:api"))
     implementation(project(path = ":feature:auth:api"))
 
     implementation(project(path = ":core:network"))
@@ -56,6 +58,9 @@ dependencies {
     ksp(libs.dagger.compiler)
 
     implementation(libs.bundles.lifecycle.viewmodel)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.androidx.compose.bom))

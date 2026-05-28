@@ -5,9 +5,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.coffeeshop.activeorders.internal.di.DaggerFeatureActiveOrdersComponent
 import com.coffeeshop.activeorders.internal.di.FeatureActiveOrdersComponent
 import com.coffeeshop.auth.internal.di.DaggerFeatureAuthComponent
+import com.github.slavikjunior.favorites.internal.di.DaggerFeatureFavoritesComponent
+import com.github.slavikjunior.favorites.internal.di.FeatureFavoritesComponent
+import com.coffeeshop.coffeeshopapp.permissions.notificationsPermissionState
 import com.coffeeshop.auth.internal.di.FeatureAuthComponent
 import com.coffeeshop.cache.internal.di.CoreCacheComponent
 import com.coffeeshop.cart.internal.di.DaggerFeatureCartComponent
@@ -60,6 +66,7 @@ class CoffeeShopApp : Application() {
     internal lateinit var featureCartComponent: FeatureCartComponent
     internal lateinit var featureActiveOrdersComponent: FeatureActiveOrdersComponent
     internal lateinit var featureOrderHistoryComponent: FeatureOrderHistoryComponent
+    internal lateinit var featureFavoritesComponent: FeatureFavoritesComponent
 
 
     override fun onCreate() {
@@ -90,6 +97,14 @@ class CoffeeShopApp : Application() {
 
         navigateToLoginWhenRequired()
 
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                applicationScope.launch {
+                    notificationsPermissionState().refresh(this@CoffeeShopApp)
+                }
+            }
+        })
+
         coffeeShopAppComponent = DaggerCoffeeShopAppComponent.builder()
             .applicationContext(this)
             .appDeps(appDeps)
@@ -110,6 +125,7 @@ class CoffeeShopApp : Application() {
             .dispatcherIo(coreDiComponent.dispatcherIO)
             .router(coreNavigationComponent.router())
             .tokenRepository(networkComponent.tokenRepository)
+            .notificationsRepository(networkComponent.notificationsRepository)
             .build()
 
         featureCatalogComponent = DaggerFeatureCatalogComponent.builder()
@@ -126,10 +142,12 @@ class CoffeeShopApp : Application() {
             .build()
 
         featureProfileComponent = DaggerFeatureProfileComponent.builder()
+            .isUserLoggedIn(featureAuthComponent().isUserLoggedInUseCase)
             .coreDiComponent(coreDiComponent)
             .retrofit(networkComponent.retrofit)
             .router(coreNavigationComponent.router())
             .tokenRepository(networkComponent.tokenRepository)
+            .notificationsRepository(networkComponent.notificationsRepository)
             .build()
 
         featureOrderHistoryComponent = DaggerFeatureOrderHistoryComponent.builder()
@@ -152,18 +170,30 @@ class CoffeeShopApp : Application() {
             .removeProductDetailFromCacheUseCase(featureCatalogComponent.removeProductDetailFromCacheUseCase)
             .addToCartUseCase(featureCartComponent.addToCartUseCase)
             .build()
+
+        featureFavoritesComponent = DaggerFeatureFavoritesComponent.builder()
+            .databaseComponent(databaseComponent)
+            .coreDiComponent(coreDiComponent)
+            .isUserLoggedIn(featureAuthComponent.isUserLoggedInUseCase)
+            .getTotalPriceFromCart(featureCartComponent.getTotalPriceFromCartUseCase)
+            .buildConfigProvider(appDeps.buildConfigProvider)
+            .logger(appDeps.logger)
+            .router(coreNavigationComponent.router())
+            .productDetailInMemoryCache(coreCacheComponent.productDetailCache())
+            .getProductDetailByProductId(featureCatalogComponent.getProductDetailByProductIdUseCase)
+            .isProductDetailStoredInCache(featureCatalogComponent.isProductDetailStoredInCacheUseCase)
+            .saveProductDetailInCache(featureCatalogComponent.saveProductDetailInCacheUseCase)
+            .build()
     }
 
     private fun createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager = getSystemService(NotificationManager::class.java)
-            listOf(
-                NotificationChannel(CHANNEL_ORDER_STATUS, CHANNEL_ORDER_STATUS_NAME, NotificationManager.IMPORTANCE_DEFAULT),
-                NotificationChannel(CHANNEL_AUTH, CHANNEL_AUTH_NAME, NotificationManager.IMPORTANCE_HIGH),
-                NotificationChannel(CHANNEL_PROMO, CHANNEL_PROMO_NAME, NotificationManager.IMPORTANCE_DEFAULT),
-                NotificationChannel(CHANNEL_DEFAULT, CHANNEL_DEFAULT_NAME, NotificationManager.IMPORTANCE_DEFAULT),
-            ).forEach { manager.createNotificationChannel(it) }
-        }
+        val manager = getSystemService(NotificationManager::class.java)
+        listOf(
+            NotificationChannel(CHANNEL_ORDER_STATUS, CHANNEL_ORDER_STATUS_NAME, NotificationManager.IMPORTANCE_DEFAULT),
+            NotificationChannel(CHANNEL_AUTH, CHANNEL_AUTH_NAME, NotificationManager.IMPORTANCE_HIGH),
+            NotificationChannel(CHANNEL_PROMO, CHANNEL_PROMO_NAME, NotificationManager.IMPORTANCE_DEFAULT),
+            NotificationChannel(CHANNEL_DEFAULT, CHANNEL_DEFAULT_NAME, NotificationManager.IMPORTANCE_DEFAULT),
+        ).forEach { manager.createNotificationChannel(it) }
     }
 
     private fun navigateToLoginWhenRequired() {
@@ -239,5 +269,12 @@ fun Context.featureOrderHistory(): FeatureOrderHistoryComponent {
     return when(this) {
         is CoffeeShopApp -> featureOrderHistoryComponent
         else -> applicationContext.featureOrderHistory()
+    }
+}
+
+fun Context.featureFavorites(): FeatureFavoritesComponent {
+    return when(this) {
+        is CoffeeShopApp -> featureFavoritesComponent
+        else -> applicationContext.featureFavorites()
     }
 }

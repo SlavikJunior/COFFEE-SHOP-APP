@@ -2,8 +2,12 @@ package com.coffeeshop.activeorders.internal.screen.activeorders
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,8 +32,11 @@ import com.coffeeshop.common.model.order.OrderStatus
 import com.coffeeshop.designsystem.common.Beige
 import com.coffeeshop.designsystem.common.DarkBrown
 import com.coffeeshop.designsystem.common.Secondary
+import com.coffeeshop.designsystem.components.CommonBottomBar
+import com.coffeeshop.designsystem.components.CommonBottomBarDestinations
 import com.coffeeshop.designsystem.components.ProfileTopBar
 import com.coffeeshop.designsystem.components.RetryOverlay
+import com.coffeeshop.designsystem.components.SimpleTopBar
 
 @Composable
 internal fun ActiveOrdersScreen(viewModelFactory: ViewModelProvider.Factory) {
@@ -49,11 +56,15 @@ private fun ActiveOrdersScreenContent(
 ) {
     Scaffold(
         containerColor = Beige,
-        topBar = {
-            ProfileTopBar(
-                title = stringResource(R.string.active_orders_top_bar_title),
-                onCloseClick = { onEvent(ActiveOrdersUiStateEvent.NavigateBack) },
-                modifier = Modifier.statusBarsPadding(),
+        bottomBar = {
+            CommonBottomBar(
+                selectedDestination = CommonBottomBarDestinations.ACTIVE_ORDERS,
+                destinationsEvents = mapOf(
+                    CommonBottomBarDestinations.CATALOG to { onEvent(ActiveOrdersUiStateEvent.BottomNavigateToCatalog) },
+                    CommonBottomBarDestinations.FAVORITES to { onEvent(ActiveOrdersUiStateEvent.BottomNavigateToFavorites) },
+                    CommonBottomBarDestinations.PROFILE to { onEvent(ActiveOrdersUiStateEvent.BottomNavigateToProfile) },
+                    CommonBottomBarDestinations.ACTIVE_ORDERS to {}
+                )
             )
         }
     ) { innerPadding ->
@@ -83,28 +94,36 @@ private fun ActiveOrdersScreenContent(
             }
 
             is ActiveOrdersUiState.Success -> {
-                if (uiState.orders.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.active_orders_empty),
-                            color = Secondary,
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(uiState.orders, key = { it.id }) { order ->
-                            ActiveOrderCard(order = order)
+                Column {
+                    SimpleTopBar(stringResource(R.string.active_orders_top_bar_title), modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding())
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    if (uiState.orders.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.active_orders_empty),
+                                color = Secondary,
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            items(uiState.orders, key = { it.id }) { order ->
+                                ActiveOrderCard(order = order)
+                            }
                         }
                     }
                 }

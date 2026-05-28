@@ -83,6 +83,8 @@ dependencies {
     implementation(project(path = ":feature:active-orders:internal"))
     implementation(project(path = ":feature:order-history:api"))
     implementation(project(path = ":feature:order-history:internal"))
+    implementation(project(path = ":feature:favorites:api"))
+    implementation(project(path = ":feature:favorites:internal"))
 
     // nav deps
     implementation(project(path = ":core:navigation"))
@@ -93,6 +95,7 @@ dependencies {
     ksp(libs.dagger.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

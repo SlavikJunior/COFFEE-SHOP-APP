@@ -1,6 +1,7 @@
 package com.coffeeshop.network.di
 
 import com.coffeeshop.buildconfig.api.BuildConfigProvider
+import com.coffeeshop.network.NotificationsService
 import com.coffeeshop.network.TokenService
 import com.coffeeshop.network.interceptors.AuthInterceptor
 import com.coffeeshop.network.interceptors.ContentTypeAndAcceptInterceptor
@@ -67,6 +68,11 @@ internal object NetworkModule {
     @NetworkScope
     fun provideTokenService(retrofit: Retrofit): TokenService =
         retrofit.create(TokenService::class.java)
+
+    @Provides
+    @NetworkScope
+    fun provideNotificationsService(retrofit: Retrofit): NotificationsService =
+        retrofit.create(NotificationsService::class.java)
 
     @Provides
     @NetworkScope

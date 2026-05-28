@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,8 +40,11 @@ import com.coffeeshop.designsystem.common.White
 import com.coffeeshop.designsystem.components.CoffeeButton
 import com.coffeeshop.designsystem.components.CoffeeProfileField
 import com.coffeeshop.designsystem.components.CoffeeToggleRow
+import com.coffeeshop.designsystem.components.CommonBottomBar
+import com.coffeeshop.designsystem.components.CommonBottomBarDestinations
 import com.coffeeshop.designsystem.components.ProfileLinkRow
 import com.coffeeshop.designsystem.components.ProfileTopBar
+import com.coffeeshop.designsystem.components.SimpleTopBar
 
 @Composable
 internal fun ProfileScreen(viewModelFactory: ViewModelProvider.Factory) {
@@ -51,7 +55,7 @@ internal fun ProfileScreen(viewModelFactory: ViewModelProvider.Factory) {
     LaunchedEffect(uiState.snackbarMessage) {
         val message = uiState.snackbarMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
-        viewModel.reduce(ProfileUiEvent.DismissSnackbar)
+        viewModel.reduce(ProfileUiStateEvent.DismissSnackbar)
     }
 
     ProfileScreenContent(
@@ -65,84 +69,73 @@ internal fun ProfileScreen(viewModelFactory: ViewModelProvider.Factory) {
 private fun ProfileScreenContent(
     snackbarHostState: SnackbarHostState,
     uiState: ProfileUiState,
-    onEvent: (ProfileUiEvent) -> Unit
+    onEvent: (ProfileUiStateEvent) -> Unit
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = Beige,
-        topBar = {
-            ProfileTopBar(
-                title = stringResource(R.string.profile_top_bar_title),
-                onCloseClick = { onEvent(ProfileUiEvent.NavigateBack) },
-                modifier = Modifier
-                    .statusBarsPadding()
+        bottomBar = {
+            CommonBottomBar(
+                selectedDestination = CommonBottomBarDestinations.PROFILE,
+                destinationsEvents = mapOf(
+                    CommonBottomBarDestinations.CATALOG to { onEvent(ProfileUiStateEvent.BottomNavigateToCatalog) },
+                    CommonBottomBarDestinations.FAVORITES to { onEvent(ProfileUiStateEvent.BottomNavigateToFavorites) },
+                    CommonBottomBarDestinations.PROFILE to {},
+                    CommonBottomBarDestinations.ACTIVE_ORDERS to { onEvent(ProfileUiStateEvent.BottomNavigateToActiveOrders) }
+                )
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .statusBarsPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
-        ) {
 
+        Column {
+            SimpleTopBar("ПРОФИЛЬ", modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding())
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            ProfileInfoSection(
-                name = uiState.name,
-                phone = uiState.phoneNumber,
-                email = uiState.email,
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
+            ) {
+                ProfileInfoSection(
+                    name = uiState.name,
+                    phone = uiState.phoneNumber,
+                    email = uiState.email,
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            CoffeeToggleRow(
-                label = stringResource(R.string.profile_notifications_label),
-                checked = false,
-                onCheckedChange = { onEvent(ProfileUiEvent.NotificationsStub) },
-            )
+                CoffeeToggleRow(
+                    label = stringResource(R.string.profile_notifications_label),
+                    checked = false,
+                    onCheckedChange = { onEvent(ProfileUiStateEvent.NotificationsStub) },
+                )
 
-            ProfileLinkRow(
-                label = stringResource(R.string.profile_order_history_label),
-                onClick = { onEvent(ProfileUiEvent.OpenOrderHistory) },
-            )
+                ProfileLinkRow(
+                    label = stringResource(R.string.profile_order_history_label),
+                    onClick = { onEvent(ProfileUiStateEvent.OpenOrderHistory) },
+                )
 
-            ProfileLinkRow(
-                label = stringResource(R.string.profile_feedback_label),
-                onClick = { onEvent(ProfileUiEvent.FeedbackStub) },
-            )
+                ProfileLinkRow(
+                    label = stringResource(R.string.profile_feedback_label),
+                    onClick = { onEvent(ProfileUiStateEvent.FeedbackStub) },
+                )
 
-            Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-            CoffeeButton(
-                text = stringResource(R.string.profile_logout_button),
-                onClick = { onEvent(ProfileUiEvent.Logout) },
-                modifier = Modifier.fillMaxWidth(),
-            )
+                CoffeeButton(
+                    text = stringResource(R.string.profile_logout_button),
+                    onClick = { onEvent(ProfileUiStateEvent.Logout) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
-    }
-}
-
-@Composable
-private fun AvatarPlaceholder() {
-    Box(
-        modifier = Modifier
-            .size(56.dp)
-            .clip(CircleShape)
-            .background(White),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            imageVector = Icons.Default.Person,
-            contentDescription = null,
-            tint = Secondary,
-            modifier = Modifier.size(32.dp),
-        )
     }
 }
 

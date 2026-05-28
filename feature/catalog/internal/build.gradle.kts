@@ -55,7 +55,9 @@ dependencies {
     implementation(project(":feature:auth:api"))
     implementation(project(":feature:profile:api"))
     implementation(project(":feature:product-detail:api"))
+    implementation(project(":feature:active-orders:api"))
     implementation(project(":feature:cart:api"))
+    implementation(project(":feature:favorites:api"))
 
     // DI
     implementation(libs.dagger.core)

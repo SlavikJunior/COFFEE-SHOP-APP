@@ -38,4 +38,29 @@ interface FavoriteProductDao {
 
     @Delete(entity = FavoriteProduct::class)
     suspend fun delete(vararg favoriteProducts: FavoriteProduct): Int
+
+    @Query("""
+        select
+            count(*)
+        from $TABLE_NAME
+        where id = :id;
+    """)
+    suspend fun isProductStoredById(id: Long): Int
+
+    @Query("""
+        select *
+        from $TABLE_NAME
+        where product_id = :productId
+            and deleted_at is null
+        limit 1
+    """)
+    suspend fun findActiveByProductId(productId: Long): FavoriteProduct?
+
+    @Query("""
+        update $TABLE_NAME
+        set deleted_at = :deletedAt
+        where product_id = :productId
+            and deleted_at is null
+    """)
+    suspend fun softDeleteByProductId(productId: Long, deletedAt: Long = Clock.System.now().epochSeconds): Int
 }

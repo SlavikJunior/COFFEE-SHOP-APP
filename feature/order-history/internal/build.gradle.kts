@@ -31,6 +31,10 @@ android {
 
 dependencies {
     implementation(project(path = ":feature:order-history:api"))
+    implementation(project(path = ":feature:auth:api"))
+    implementation(project(path = ":feature:profile:api"))
+    implementation(project(path = ":feature:favorites:api"))
+    implementation(project(path = ":feature:active-orders:api"))
 
     implementation(project(path = ":core:di"))
     implementation(project(path = ":core:navigation"))

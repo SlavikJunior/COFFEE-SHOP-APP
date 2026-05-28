@@ -26,6 +26,8 @@ class TokenAuthenticator
     override fun authenticate(route: Route?, response: Response): Request? {
         if (response.code != 401) return null
 
+        if (response.request.url.encodedPath.startsWith("/api/auth/")) return null
+
         if (response.request.header(RETRY_HEADER) != null) return null
 
         val newToken = runBlocking(dispatcher) {

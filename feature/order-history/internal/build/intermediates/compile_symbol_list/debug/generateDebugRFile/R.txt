@@ -1,0 +1,4 @@
+int string order_history_empty_label 0x0
+int string order_history_error_label 0x0
+int string order_history_order_item_title 0x0
+int string order_history_title 0x0

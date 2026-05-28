@@ -6,6 +6,7 @@ import com.coffeeshop.auth.api.domain.usecase.IsUserLoggedInUseCase
 import com.coffeeshop.di.qualifiers.DispatcherIO
 import com.coffeeshop.di.qualifiers.LoginViewModelFactory
 import com.coffeeshop.di.qualifiers.RegisterViewModelFactory
+import com.coffeeshop.network.NotificationsRepository
 import com.coffeeshop.network.TokenRepository
 import com.coffeshop.navigation.Route
 import dagger.BindsInstance
@@ -40,6 +41,8 @@ interface FeatureAuthComponent {
         fun router(router: Router<Route>): Builder
         @BindsInstance
         fun tokenRepository(tokenRepository: TokenRepository): Builder
+        @BindsInstance
+        fun notificationsRepository(repo: NotificationsRepository): Builder
         fun build(): FeatureAuthComponent
     }
 }

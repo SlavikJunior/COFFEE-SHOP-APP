@@ -15,7 +15,10 @@ import com.coffeeshop.json.JsonComponent
 import com.coffeeshop.logger.api.CoffeeshopLogger
 import com.coffeeshop.network.di.NetworkComponent
 import com.coffeshop.catalog.api.domain.usecase.GetProductDetailFromCacheUseCase
+import com.coffeshop.catalog.api.domain.usecase.GetProductDetailByProductIdUseCase
+import com.coffeshop.catalog.api.domain.usecase.IsProductDetailStoredInCacheUseCase
 import com.coffeshop.catalog.api.domain.usecase.RemoveProductDetailFromCacheUseCase
+import com.coffeshop.catalog.api.domain.usecase.SaveProductDetailInCacheUseCase
 import com.coffeshop.navigation.Route
 import dagger.BindsInstance
 import dagger.Component
@@ -40,6 +43,12 @@ interface FeatureCatalogComponent {
     val getProductDetailFromCacheUseCase: GetProductDetailFromCacheUseCase
 
     val removeProductDetailFromCacheUseCase: RemoveProductDetailFromCacheUseCase
+
+    val getProductDetailByProductIdUseCase: GetProductDetailByProductIdUseCase
+
+    val isProductDetailStoredInCacheUseCase: IsProductDetailStoredInCacheUseCase
+
+    val saveProductDetailInCacheUseCase: SaveProductDetailInCacheUseCase
 
     @Component.Builder
     interface Builder {

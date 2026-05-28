@@ -35,6 +35,8 @@ dependencies {
     implementation(project(path = ":core:network"))
     implementation(project(path = ":core:design-system"))
     implementation(project(path = ":feature:active-orders:api"))
+    implementation(project(path = ":feature:catalog:api"))
+    implementation(project(path = ":feature:profile:api"))
 
     implementation(libs.dagger.core)
     ksp(libs.dagger.compiler)

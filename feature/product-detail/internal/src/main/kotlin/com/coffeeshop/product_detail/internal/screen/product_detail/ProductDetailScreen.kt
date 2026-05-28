@@ -48,7 +48,7 @@ import com.coffeeshop.designsystem.components.OptionSelectorGroup
 import com.coffeeshop.product_detail.internal.R
 
 @Composable
-fun ProductDetailScreen(
+internal fun ProductDetailScreen(
     productId: ID,
     viewModelFactory: ViewModelProvider.Factory,
 ) = ProductDetailScreenInternal(

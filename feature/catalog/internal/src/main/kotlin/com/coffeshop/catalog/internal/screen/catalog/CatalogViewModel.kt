@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arttttt.nav3router.Router
+import com.coffeeshop.activeorders.api.presentation.navigation.ActiveOrdersRoute
 import com.coffeeshop.auth.api.domain.usecase.IsUserLoggedInUseCase
 import com.coffeeshop.auth.api.presentation.navigation.LoginRoute
 import com.coffeeshop.cart.api.domain.usecase.GetTotalPriceFromCartUseCase
@@ -21,6 +22,7 @@ import com.coffeeshop.product_detail.api.presentation.navigation.ProductDetailRo
 import com.coffeeshop.profile.api.presentation.navigation.ProfileRoute
 import com.coffeeshop.utils.groupBy
 import com.coffeshop.catalog.api.domain.usecase.GetFullMenuUseCase
+import com.github.slavikjunior.favorites.api.navigation.FavoritesRoute
 import com.coffeshop.catalog.api.domain.usecase.GetProductDetailByProductIdUseCase
 import com.coffeshop.catalog.api.domain.usecase.IsProductDetailStoredInCacheUseCase
 import com.coffeshop.catalog.api.domain.usecase.SaveProductDetailInCacheUseCase
@@ -28,7 +30,6 @@ import com.coffeshop.navigation.Route
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,7 +47,7 @@ internal sealed interface CatalogUiStateStatus {
 @Stable
 internal data class CatalogUiState(
     val productsMap: Map<CategoryType, List<Product>> = emptyMap(),
-    val state: CatalogUiStateStatus = CatalogUiStateStatus.Loading,
+    val status: CatalogUiStateStatus = CatalogUiStateStatus.Loading,
     val selectedCategoryType: CategoryType = CategoryType.COFFEE,
     val selectedProduct: ProductWithModifiers? = null,
     val favouriteProductIds: Set<ID> = emptySet(),
@@ -54,18 +55,15 @@ internal data class CatalogUiState(
 )
 
 internal sealed interface CatalogUiStateEvent {
-
     data object RetryAfterErrorClicked : CatalogUiStateEvent
-
     data class ChangeCategoryType(val categoryType: CategoryType) : CatalogUiStateEvent
-
     data class ToggleProductFavorite(val productId: ID) : CatalogUiStateEvent
-
     data class GetProductDetail(val productId: ID) : CatalogUiStateEvent
-
     data object ProfileClicked : CatalogUiStateEvent
-
     data object NavigateToCart : CatalogUiStateEvent
+    data object BottomNavigateToFavorites : CatalogUiStateEvent
+    data object BottomNavigateToProfile : CatalogUiStateEvent
+    data object BottomNavigateToActiveOrders : CatalogUiStateEvent
 }
 
 internal class CatalogViewModel
@@ -106,23 +104,35 @@ internal class CatalogViewModel
             is CatalogUiStateEvent.ToggleProductFavorite -> onToggleProductFavorite(event)
             CatalogUiStateEvent.ProfileClicked -> onProfileClicked()
             CatalogUiStateEvent.NavigateToCart -> onNavigateToCart()
+            CatalogUiStateEvent.BottomNavigateToFavorites -> onBottomNavigateToFavorites()
+            CatalogUiStateEvent.BottomNavigateToProfile -> onBottomNavigateToProfile()
+            CatalogUiStateEvent.BottomNavigateToActiveOrders -> onBottomNavigateToActiveOrders()
         }
+    }
+
+    private fun onBottomNavigateToActiveOrders() =
+        if (isUserLoggedIn()) router.replaceStack(ActiveOrdersRoute)
+        else router.push(LoginRoute(message = LOGIN_NAVIGATE_MESSAGE))
+
+    private fun onBottomNavigateToProfile() =
+        if (isUserLoggedIn()) router.replaceStack(ProfileRoute())
+        else router.push(LoginRoute(message = LOGIN_NAVIGATE_MESSAGE))
+
+    private fun onBottomNavigateToFavorites() {
+        // todo()
+        //router.replaceStack(FavoritesRoute)
     }
 
     private fun onNavigateToCart() {
         router.push(CartRoute)
     }
 
-    private fun onProfileClicked() {
-        if (isUserLoggedIn()) {
-            router.push(ProfileRoute(isLoggedIn = true))
-        } else {
-            router.push(LoginRoute())
-        }
-    }
+    private fun onProfileClicked() =
+        if (isUserLoggedIn()) router.push(ProfileRoute(isLoggedIn = true))
+        else router.push(LoginRoute(message = LOGIN_NAVIGATE_MESSAGE))
 
     private fun onRetryAfterErrorClicked() {
-        _uiState.update { it.copy(state = CatalogUiStateStatus.Loading) }
+        _uiState.update { it.copy(status = CatalogUiStateStatus.Loading) }
         initData()
     }
 
@@ -159,7 +169,7 @@ internal class CatalogViewModel
                         router.push(ProductDetailRoute(productID = product.productId))
                     }
                 }
-                is Result.Error -> _uiState.update { it.copy(state = CatalogUiStateStatus.Error(result.exception)) }
+                is Result.Error -> _uiState.update { it.copy(status = CatalogUiStateStatus.Error(result.exception)) }
                 else -> throw IllegalArgumentException("Illegal product detail result: $result")
             }
         }
@@ -178,11 +188,11 @@ internal class CatalogViewModel
         searchJob = viewModelScope.launch {
             when (val result = getFullMenu()) {
                 Result.Loading -> {
-                    _uiState.update { it.copy(state = CatalogUiStateStatus.Loading) }
+                    _uiState.update { it.copy(status = CatalogUiStateStatus.Loading) }
                 }
 
                 is Result.Error -> {
-                    _uiState.update { it.copy(state = CatalogUiStateStatus.Error(cause = result.exception)) }
+                    _uiState.update { it.copy(status = CatalogUiStateStatus.Error(cause = result.exception)) }
                 }
 
                 is Result.Success<*> -> {
@@ -196,7 +206,7 @@ internal class CatalogViewModel
 
                     _uiState.update { it.copy(
                         productsMap = productsIntoMap ?: emptyMap(),
-                        state = CatalogUiStateStatus.Success,
+                        status = CatalogUiStateStatus.Success,
                     ) }
                 }
             }
@@ -209,6 +219,7 @@ internal class CatalogViewModel
     }
 
     private companion object {
+        const val LOGIN_NAVIGATE_MESSAGE = "Для начала войдите в систему."
         const val TAG = "CatalogViewModel"
     }
 }
