@@ -58,7 +58,7 @@ class MessagingService : FirebaseMessagingService() {
             TYPE_ORDER_STATUS -> {
                 val orderId = message.data[ORDER_ID_KEY]?.toLongOrNull() ?: return
                 val status = message.data[STATUS_KEY]
-                    ?.let { runCatching { OrderStatus.valueOf(it) }.getOrNull() } ?: return
+                    ?.let { status: String -> runCatching { OrderStatus.entries.find { it.name.equals(status, ignoreCase = true) } }.getOrNull() } ?: return
                 OrderEventBus.notifyOrderStatusChanged(OrderStatusUpdate(orderId, status))
             }
             TYPE_CHAT_MESSAGE -> Unit
